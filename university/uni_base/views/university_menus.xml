@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem
+        id="menu_university_root"
+        name="University"
+        sequence="10"
+        action="uni_base.action_university_home"
+        groups="uni_base.group_university_user"
+    />
+
+    <menuitem
+        id="menu_university_home_student"
+        name="Student Home"
+        parent="uni_base.menu_university_root"
+        sequence="10"
+        action="uni_base.action_university_home"
+        groups="uni_base.group_university_student"
+    />
+
+    <menuitem
+        id="menu_university_home_faculty"
+        name="Faculty Home"
+        parent="uni_base.menu_university_root"
+        sequence="20"
+        action="uni_base.action_university_home"
+        groups="uni_base.group_university_faculty,uni_base.group_university_advisor"
+    />
+
+    <menuitem
+        id="menu_university_home_admin"
+        name="Admin Home"
+        parent="uni_base.menu_university_root"
+        sequence="30"
+        action="uni_base.action_university_home"
+        groups="uni_base.group_university_admin"
+    />
+
+    <menuitem id="menu_university_students" name="Students" parent="uni_base.menu_university_root" sequence="40" action="uni_base.action_uni_students" groups="uni_base.group_university_user"/>
+    <menuitem id="menu_university_admissions" name="Admissions" parent="uni_base.menu_university_root" sequence="45" action="uni_base.action_uni_admissions" groups="uni_base.group_university_admin,uni_base.group_university_advisor"/>
+    <menuitem id="menu_university_faculty" name="Faculty" parent="uni_base.menu_university_root" sequence="50" action="uni_base.action_uni_faculty" groups="uni_base.group_university_admin,uni_base.group_university_advisor"/>
+    <menuitem id="menu_university_courses" name="Courses" parent="uni_base.menu_university_root" sequence="60" action="uni_base.action_uni_courses" groups="uni_base.group_university_user"/>
+    <menuitem id="menu_university_timetable" name="Timetable" parent="uni_base.menu_university_root" sequence="70" action="uni_base.action_uni_timetable" groups="uni_base.group_university_user"/>
+    <menuitem id="menu_university_attendance" name="Attendance" parent="uni_base.menu_university_root" sequence="80" action="uni_base.action_uni_attendance" groups="uni_base.group_university_faculty,uni_base.group_university_admin"/>
+    <menuitem id="menu_university_assignments" name="Assignments" parent="uni_base.menu_university_root" sequence="90" action="uni_base.action_uni_assignments" groups="uni_base.group_university_user"/>
+    <menuitem id="menu_university_submissions" name="Submissions" parent="uni_base.menu_university_root" sequence="95" action="uni_base.action_uni_assignment_submissions" groups="uni_base.group_university_user"/>
+    <menuitem id="menu_university_grades" name="Grades" parent="uni_base.menu_university_root" sequence="100" action="uni_base.action_uni_grades" groups="uni_base.group_university_user"/>
+    <menuitem id="menu_university_issues" name="Issues" parent="uni_base.menu_university_root" sequence="110" action="uni_base.action_uni_issues" groups="uni_base.group_university_user"/>
+    <menuitem id="menu_university_exams" name="Exams" parent="uni_base.menu_university_root" sequence="120" action="uni_base.action_uni_exams" groups="uni_base.group_university_user"/>
+    <menuitem id="menu_university_exam_results" name="Exam Results" parent="uni_base.menu_university_root" sequence="125" action="uni_base.action_uni_exam_results" groups="uni_base.group_university_user"/>
+    <menuitem id="menu_university_resit_requests" name="Resit Requests" parent="uni_base.menu_university_root" sequence="127" action="uni_base.action_uni_resit_requests" groups="uni_base.group_university_user"/>
+    <menuitem id="menu_university_registrations" name="Registrations" parent="uni_base.menu_university_root" sequence="130" action="uni_base.action_uni_registrations" groups="uni_base.group_university_user"/>
+    <menuitem id="menu_university_fees" name="Fees" parent="uni_base.menu_university_root" sequence="140" action="uni_base.action_uni_fee_invoices" groups="uni_base.group_university_user"/>
+    <menuitem id="menu_university_scholarships" name="Scholarships" parent="uni_base.menu_university_root" sequence="150" action="uni_base.action_uni_scholarships" groups="uni_base.group_university_user"/>
+    <menuitem id="menu_university_library_items" name="Library Items" parent="uni_base.menu_university_root" sequence="160" action="uni_base.action_uni_library_items" groups="uni_base.group_university_user"/>
+    <menuitem id="menu_university_library_loans" name="Library Loans" parent="uni_base.menu_university_root" sequence="170" action="uni_base.action_uni_library_loans" groups="uni_base.group_university_user"/>
+    <menuitem id="menu_university_notifications" name="Notifications" parent="uni_base.menu_university_root" sequence="180" action="uni_base.action_uni_notifications" groups="uni_base.group_university_user"/>
+    <menuitem id="menu_university_configuration" name="Configuration" parent="uni_base.menu_university_root" sequence="190" groups="uni_base.group_university_admin"/>
+    <menuitem id="menu_university_departments" name="Departments" parent="uni_base.menu_university_configuration" sequence="10" action="uni_base.action_uni_departments" groups="uni_base.group_university_admin"/>
+    <menuitem id="menu_university_terms" name="Terms" parent="uni_base.menu_university_configuration" sequence="20" action="uni_base.action_uni_terms" groups="uni_base.group_university_admin"/>
+</odoo>

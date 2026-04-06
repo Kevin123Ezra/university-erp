@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem
+        id="menu_university_root"
+        name="University"
+        sequence="10"
+        action="uni_ui.action_university_home"
+        groups="uni_base.group_university_user"
+    />
+
+    <menuitem
+        id="menu_university_home_student"
+        name="Student Home"
+        parent="uni_ui.menu_university_root"
+        sequence="10"
+        action="uni_ui.action_university_home"
+        groups="uni_base.group_university_student"
+    />
+
+    <menuitem
+        id="menu_university_home_faculty"
+        name="Faculty Home"
+        parent="uni_ui.menu_university_root"
+        sequence="20"
+        action="uni_ui.action_university_home"
+        groups="uni_base.group_university_faculty,uni_base.group_university_advisor"
+    />
+
+    <menuitem
+        id="menu_university_home_admin"
+        name="Admin Home"
+        parent="uni_ui.menu_university_root"
+        sequence="30"
+        action="uni_ui.action_university_home"
+        groups="uni_base.group_university_admin"
+    />
+</odoo>

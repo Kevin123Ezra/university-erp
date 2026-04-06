@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_uni_department_tree" model="ir.ui.view">
+        <field name="name">uni.department.list</field>
+        <field name="model">uni.department</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_uni_department_form" model="ir.ui.view">
+        <field name="name">uni.department.form</field>
+        <field name="model">uni.department</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet><group><field name="name"/><field name="code"/><field name="active"/></group></sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_uni_term_tree" model="ir.ui.view">
+        <field name="name">uni.term.list</field>
+        <field name="model">uni.term</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/><field name="academic_year"/><field name="start_date"/><field name="end_date"/><field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_uni_term_form" model="ir.ui.view">
+        <field name="name">uni.term.form</field>
+        <field name="model">uni.term</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet><group><field name="name"/><field name="academic_year"/><field name="start_date"/><field name="end_date"/><field name="state"/></group></sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_uni_faculty_tree" model="ir.ui.view">
+        <field name="name">uni.faculty.list</field>
+        <field name="model">uni.faculty</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/><field name="title"/><field name="department_id"/><field name="user_id"/><field name="max_load_hours"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_uni_faculty_form" model="ir.ui.view">
+        <field name="name">uni.faculty.form</field>
+        <field name="model">uni.faculty</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet><group><field name="name"/><field name="title"/><field name="department_id"/><field name="user_id"/><field name="max_load_hours"/></group></sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_uni_student_tree" model="ir.ui.view">
+        <field name="name">uni.student.list</field>
+        <field name="model">uni.student</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="student_number"/><field name="name"/><field name="department_id"/><field name="term_id"/><field name="state"/><field name="attendance_rate"/><field name="current_gpa"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_uni_student_form" model="ir.ui.view">
+        <field name="name">uni.student.form</field>
+        <field name="model">uni.student</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group><field name="name"/><field name="student_number"/><field name="user_id"/><field name="email"/></group>
+                        <group><field name="department_id"/><field name="advisor_id"/><field name="term_id"/><field name="state"/></group>
+                    </group>
+                    <group><field name="attendance_rate" readonly="1"/><field name="current_gpa" readonly="1"/><field name="assignment_due_count" readonly="1"/></group>
+                    <notebook>
+                        <page string="Grades">
+                            <field name="grade_ids" readonly="1"><list><field name="course_id"/><field name="term_id"/><field name="percentage"/><field name="letter_grade"/><field name="grade_point"/></list></field>
+                        </page>
+                        <page string="Attendance">
+                            <field name="attendance_ids" readonly="1"><list><field name="course_id"/><field name="session_date"/><field name="status"/></list></field>
+                        </page>
+                        <page string="Issues">
+                            <field name="issue_ids" readonly="1"><list><field name="name"/><field name="issue_type"/><field name="priority"/><field name="state"/></list></field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_uni_course_tree" model="ir.ui.view">
+        <field name="name">uni.course.list</field>
+        <field name="model">uni.course</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="code"/><field name="name"/><field name="department_id"/><field name="faculty_id"/><field name="term_id"/><field name="credit_hours"/><field name="seat_limit"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_uni_course_form" model="ir.ui.view">
+        <field name="name">uni.course.form</field>
+        <field name="model">uni.course</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group><field name="code"/><field name="name"/><field name="department_id"/></group>
+                        <group><field name="faculty_id"/><field name="term_id"/><field name="credit_hours"/><field name="seat_limit"/></group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_uni_timetable_tree" model="ir.ui.view">
+        <field name="name">uni.timetable.list</field>
+        <field name="model">uni.timetable</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="course_id"/><field name="faculty_id"/><field name="term_id"/><field name="weekday"/><field name="start_hour"/><field name="end_hour"/><field name="room"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_uni_timetable_form" model="ir.ui.view">
+        <field name="name">uni.timetable.form</field>
+        <field name="model">uni.timetable</field>
+        <field name="arch" type="xml">
+            <form><sheet><group><field name="course_id"/><field name="faculty_id"/><field name="term_id"/><field name="weekday"/><field name="start_hour"/><field name="end_hour"/><field name="room"/></group></sheet></form>
+        </field>
+    </record>
+
+    <record id="view_uni_attendance_tree" model="ir.ui.view">
+        <field name="name">uni.attendance.list</field>
+        <field name="model">uni.attendance</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="session_date"/><field name="student_id"/><field name="course_id"/><field name="faculty_id"/><field name="status"/><field name="note"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_uni_attendance_form" model="ir.ui.view">
+        <field name="name">uni.attendance.form</field>
+        <field name="model">uni.attendance</field>
+        <field name="arch" type="xml">
+            <form><sheet><group><field name="session_date"/><field name="student_id"/><field name="course_id"/><field name="faculty_id"/><field name="status"/><field name="note"/></group></sheet></form>
+        </field>
+    </record>
+
+    <record id="view_uni_assignment_tree" model="ir.ui.view">
+        <field name="name">uni.assignment.list</field>
+        <field name="model">uni.assignment</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/><field name="course_id"/><field name="faculty_id"/><field name="term_id"/><field name="due_date"/><field name="state"/><field name="total_marks"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_uni_assignment_form" model="ir.ui.view">
+        <field name="name">uni.assignment.form</field>
+        <field name="model">uni.assignment</field>
+        <field name="arch" type="xml">
+            <form><sheet><group><field name="name"/><field name="course_id"/><field name="faculty_id"/><field name="term_id"/><field name="due_date"/><field name="state"/><field name="total_marks"/></group><group><field name="instructions"/></group></sheet></form>
+        </field>
+    </record>
+
+    <record id="view_uni_grade_tree" model="ir.ui.view">
+        <field name="name">uni.grade.list</field>
+        <field name="model">uni.grade</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="student_id"/><field name="course_id"/><field name="term_id"/><field name="percentage"/><field name="letter_grade"/><field name="grade_point"/><field name="credit_hours"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_uni_grade_form" model="ir.ui.view">
+        <field name="name">uni.grade.form</field>
+        <field name="model">uni.grade</field>
+        <field name="arch" type="xml">
+            <form><sheet><group><field name="student_id"/><field name="course_id"/><field name="term_id"/><field name="percentage"/><field name="letter_grade" readonly="1"/><field name="grade_point" readonly="1"/><field name="credit_hours"/><field name="note"/></group></sheet></form>
+        </field>
+    </record>
+
+    <record id="view_uni_issue_tree" model="ir.ui.view">
+        <field name="name">uni.issue.list</field>
+        <field name="model">uni.issue</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="opened_on"/><field name="name"/><field name="issue_type"/><field name="priority"/><field name="state"/><field name="student_id"/><field name="course_id"/><field name="assignee_faculty_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_uni_issue_form" model="ir.ui.view">
+        <field name="name">uni.issue.form</field>
+        <field name="model">uni.issue</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group><field name="name"/><field name="issue_type"/><field name="priority"/><field name="state"/></group>
+                        <group><field name="opened_on"/><field name="student_id"/><field name="course_id"/><field name="assignee_faculty_id"/></group>
+                    </group>
+                    <group><field name="description"/></group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_uni_students" model="ir.actions.act_window"><field name="name">Students</field><field name="res_model">uni.student</field><field name="view_mode">list,form</field></record>
+    <record id="action_uni_faculty" model="ir.actions.act_window"><field name="name">Faculty</field><field name="res_model">uni.faculty</field><field name="view_mode">list,form</field></record>
+    <record id="action_uni_courses" model="ir.actions.act_window"><field name="name">Courses</field><field name="res_model">uni.course</field><field name="view_mode">list,form</field></record>
+    <record id="action_uni_timetable" model="ir.actions.act_window"><field name="name">Timetable</field><field name="res_model">uni.timetable</field><field name="view_mode">list,form</field></record>
+    <record id="action_uni_attendance" model="ir.actions.act_window"><field name="name">Attendance</field><field name="res_model">uni.attendance</field><field name="view_mode">list,form</field></record>
+    <record id="action_uni_assignments" model="ir.actions.act_window"><field name="name">Assignments</field><field name="res_model">uni.assignment</field><field name="view_mode">list,form</field></record>
+    <record id="action_uni_grades" model="ir.actions.act_window"><field name="name">Grades</field><field name="res_model">uni.grade</field><field name="view_mode">list,form</field></record>
+    <record id="action_uni_issues" model="ir.actions.act_window"><field name="name">Issues</field><field name="res_model">uni.issue</field><field name="view_mode">list,form</field></record>
+    <record id="action_uni_departments" model="ir.actions.act_window"><field name="name">Departments</field><field name="res_model">uni.department</field><field name="view_mode">list,form</field></record>
+    <record id="action_uni_terms" model="ir.actions.act_window"><field name="name">Terms</field><field name="res_model">uni.term</field><field name="view_mode">list,form</field></record>
+</odoo>

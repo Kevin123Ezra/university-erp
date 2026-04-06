@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="uni_ui.UniversityHomeAction">
+        <div class="o_university_home" t-att-data-role="state.role">
+            <t t-if="state.loading">
+                <div class="o_university_home_loading">Loading university workspace...</div>
+            </t>
+            <t t-else="">
+                <section class="o_university_home_hero">
+                    <div>
+                        <p class="o_university_home_eyebrow">Role-aware home</p>
+                        <h1 t-esc="state.university_name"/>
+                        <p class="o_university_home_tagline" t-esc="state.tagline"/>
+                    </div>
+                    <div class="o_university_home_role">
+                        <span>Signed in as</span>
+                        <strong t-esc="state.role"/>
+                    </div>
+                </section>
+
+                <section class="o_university_home_cards">
+                    <article t-foreach="state.cards" t-as="card" t-key="card.label" class="o_university_home_card">
+                        <span class="o_university_home_card_label" t-esc="card.label"/>
+                        <strong class="o_university_home_card_value" t-esc="card.value"/>
+                        <p class="o_university_home_card_hint" t-esc="card.hint"/>
+                    </article>
+                </section>
+
+                <section class="o_university_home_panels">
+                    <div class="o_university_home_panel">
+                        <h2>What belongs here next</h2>
+                        <ul>
+                            <li t-foreach="state.highlights" t-as="item" t-key="item" t-esc="item"/>
+                        </ul>
+                    </div>
+                    <div class="o_university_home_panel" t-if="state.quick_links.length">
+                        <h2>Quick links</h2>
+                        <div class="o_university_home_actions">
+                            <button
+                                t-foreach="state.quick_links"
+                                t-as="link"
+                                t-key="link.xmlid"
+                                type="button"
+                                class="btn btn-outline-primary"
+                                t-on-click="() => this.openAction(link.xmlid)"
+                                t-esc="link.label"
+                            />
+                        </div>
+                    </div>
+                </section>
+            </t>
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Odoo",
+            "type": "debugpy",
+            "request": "launch",
+            "stopOnEntry": false,
+            "python": "${config:python.defaultInterpreterPath}",
+            "program": "${workspaceFolder}\\odoo-bin",
+            "console": "integratedTerminal",
+            "args": [
+                "--config=${workspaceFolder}\\odoo.conf",
+                "-d",
+                "admin"
+            ],
+            "cwd": "${workspaceFolder}",
+            "env": {},
+            "envFile": "${workspaceFolder}/.env",
+            "redirectOutput": true
+        }
+    ]
+}

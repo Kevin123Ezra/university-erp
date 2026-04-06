@@ -1,0 +1,202 @@
+$o-university-primary: #005f73;
+$o-university-secondary: #ee9b00;
+$o-university-accent: #94d2bd;
+$o-university-ink: #0a2230;
+$o-university-muted: #5f6f7b;
+$o-university-surface: #fbfdff;
+$o-university-border: rgba(10, 34, 48, 0.08);
+
+body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+.o_university_login_shell {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #05212d 0%, #005f73 55%, #0a9396 100%);
+}
+
+.o_university_login_shell .o_database_list {
+    width: 100%;
+    max-width: 420px !important;
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(5, 33, 45, 0.22);
+    background: $o-university-surface;
+}
+
+.o_university_login_brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.o_university_brand_mark {
+    width: 56px;
+    height: 56px;
+    line-height: 56px;
+    text-align: center;
+    border-radius: 18px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #fff;
+    background: linear-gradient(135deg, $o-university-primary, #0a9396);
+}
+
+.o_university_brand_name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: $o-university-ink;
+}
+
+.o_university_brand_tagline {
+    color: $o-university-muted;
+    font-size: 0.92rem;
+}
+
+.o_university_login_intro {
+    margin-bottom: 1.25rem;
+}
+
+.o_university_login_kicker,
+.o_university_home_eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: $o-university-secondary;
+}
+
+.o_university_login_intro h1 {
+    font-size: 2rem;
+    line-height: 1.05;
+    color: $o-university-ink;
+    margin-bottom: 0.75rem;
+}
+
+.o_university_login_copy {
+    color: $o-university-muted;
+    margin-bottom: 0.9rem;
+}
+
+.o_university_role_hints {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.o_university_role_hints span {
+    border-radius: 999px;
+    padding: 0.3rem 0.75rem;
+    background: rgba(0, 95, 115, 0.08);
+    color: $o-university-primary;
+    font-weight: 600;
+}
+
+.o_university_primary_btn,
+.o_university_home_actions .btn {
+    border-radius: 12px;
+    background-color: $o-university-primary;
+    border-color: $o-university-primary;
+}
+
+.o_university_home {
+    min-height: 100%;
+    padding: 1.5rem;
+    background: linear-gradient(180deg, #f8fbfc, #eef5f7);
+}
+
+.o_university_home_hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.o_university_home_hero h1 {
+    font-size: 2.2rem;
+    margin: 0.25rem 0;
+    color: $o-university-ink;
+}
+
+.o_university_home_tagline {
+    color: $o-university-muted;
+}
+
+.o_university_home_role {
+    min-width: 170px;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(0, 95, 115, 0.12);
+    border-radius: 18px;
+    background: #fff;
+}
+
+.o_university_home_cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.o_university_home_card {
+    flex: 1 1 220px;
+}
+
+.o_university_home_card,
+.o_university_home_panel {
+    padding: 1.25rem;
+    border: 1px solid $o-university-border;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 12px 32px rgba(10, 34, 48, 0.06);
+}
+
+.o_university_home_card_label {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: rgba(10, 34, 48, 0.68);
+}
+
+.o_university_home_card_value {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-size: 2rem;
+    color: $o-university-ink;
+}
+
+.o_university_home_card_hint {
+    color: $o-university-muted;
+}
+
+.o_university_home_panels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.o_university_home_panel {
+    flex: 1 1 320px;
+}
+
+.o_university_home_actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.o_university_home_loading {
+    min-height: 240px;
+    padding-top: 100px;
+    text-align: center;
+    font-size: 1.1rem;
+    color: $o-university-primary;
+}
+
+@media (max-width: 768px) {
+    .o_university_home_hero {
+        display: block;
+    }
+
+    .o_university_home_role {
+        margin-top: 1rem;
+    }
+}

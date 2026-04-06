@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_uni_exam_tree" model="ir.ui.view">
+        <field name="name">uni.exam.list</field>
+        <field name="model">uni.exam</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/><field name="course_id"/><field name="term_id"/><field name="exam_date"/><field name="start_hour"/><field name="room"/><field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_uni_exam_form" model="ir.ui.view">
+        <field name="name">uni.exam.form</field>
+        <field name="model">uni.exam</field>
+        <field name="arch" type="xml">
+            <form><sheet><group><field name="name"/><field name="course_id"/><field name="term_id"/><field name="exam_date"/><field name="start_hour"/><field name="end_hour"/><field name="room"/><field name="capacity"/><field name="invigilator_id"/><field name="state"/></group></sheet></form>
+        </field>
+    </record>
+
+    <record id="view_uni_course_registration_tree" model="ir.ui.view">
+        <field name="name">uni.course.registration.list</field>
+        <field name="model">uni.course.registration</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="student_id"/><field name="course_id"/><field name="term_id"/><field name="status"/><field name="registered_on"/><field name="note"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_uni_course_registration_form" model="ir.ui.view">
+        <field name="name">uni.course.registration.form</field>
+        <field name="model">uni.course.registration</field>
+        <field name="arch" type="xml">
+            <form><sheet><group><field name="student_id"/><field name="course_id"/><field name="term_id"/><field name="status"/><field name="registered_on"/><field name="note"/></group></sheet></form>
+        </field>
+    </record>
+
+    <record id="view_uni_fee_invoice_tree" model="ir.ui.view">
+        <field name="name">uni.fee.invoice.list</field>
+        <field name="model">uni.fee.invoice</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/><field name="student_id"/><field name="term_id"/><field name="amount_total"/><field name="scholarship_discount"/><field name="amount_paid"/><field name="balance_due"/><field name="due_date"/><field name="state"/><field name="is_exam_blocking"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_uni_fee_invoice_form" model="ir.ui.view">
+        <field name="name">uni.fee.invoice.form</field>
+        <field name="model">uni.fee.invoice</field>
+        <field name="arch" type="xml">
+            <form><sheet><group><field name="name"/><field name="student_id"/><field name="term_id"/><field name="amount_total"/><field name="scholarship_discount" readonly="1"/><field name="amount_paid"/><field name="balance_due" readonly="1"/><field name="due_date"/><field name="scholarship_id"/><field name="state"/><field name="is_exam_blocking" readonly="1"/></group></sheet></form>
+        </field>
+    </record>
+
+    <record id="view_uni_scholarship_tree" model="ir.ui.view">
+        <field name="name">uni.scholarship.list</field>
+        <field name="model">uni.scholarship</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/><field name="scholarship_type"/><field name="student_id"/><field name="amount"/><field name="state"/><field name="note"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_uni_scholarship_form" model="ir.ui.view">
+        <field name="name">uni.scholarship.form</field>
+        <field name="model">uni.scholarship</field>
+        <field name="arch" type="xml">
+            <form><sheet><group><field name="name"/><field name="scholarship_type"/><field name="student_id"/><field name="amount"/><field name="state"/><field name="note"/></group></sheet></form>
+        </field>
+    </record>
+
+    <record id="view_uni_library_item_tree" model="ir.ui.view">
+        <field name="name">uni.library.item.list</field>
+        <field name="model">uni.library.item</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="title"/><field name="author"/><field name="isbn"/><field name="course_id"/><field name="available_copies"/><field name="digital_link"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_uni_library_item_form" model="ir.ui.view">
+        <field name="name">uni.library.item.form</field>
+        <field name="model">uni.library.item</field>
+        <field name="arch" type="xml">
+            <form><sheet><group><field name="title"/><field name="author"/><field name="isbn"/><field name="course_id"/><field name="available_copies"/><field name="digital_link"/></group></sheet></form>
+        </field>
+    </record>
+
+    <record id="view_uni_library_loan_tree" model="ir.ui.view">
+        <field name="name">uni.library.loan.list</field>
+        <field name="model">uni.library.loan</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="item_id"/><field name="student_id"/><field name="borrow_date"/><field name="due_date"/><field name="return_date"/><field name="state"/><field name="fine_amount"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_uni_library_loan_form" model="ir.ui.view">
+        <field name="name">uni.library.loan.form</field>
+        <field name="model">uni.library.loan</field>
+        <field name="arch" type="xml">
+            <form><sheet><group><field name="item_id"/><field name="student_id"/><field name="borrow_date"/><field name="due_date"/><field name="return_date"/><field name="state"/><field name="fine_amount"/></group></sheet></form>
+        </field>
+    </record>
+
+    <record id="view_uni_notification_tree" model="ir.ui.view">
+        <field name="name">uni.notification.list</field>
+        <field name="model">uni.notification</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/><field name="notification_type"/><field name="audience"/><field name="schedule_date"/><field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_uni_notification_form" model="ir.ui.view">
+        <field name="name">uni.notification.form</field>
+        <field name="model">uni.notification</field>
+        <field name="arch" type="xml">
+            <form><sheet><group><field name="name"/><field name="notification_type"/><field name="audience"/><field name="schedule_date"/><field name="state"/><field name="message"/></group></sheet></form>
+        </field>
+    </record>
+
+    <record id="action_uni_exams" model="ir.actions.act_window"><field name="name">Exams</field><field name="res_model">uni.exam</field><field name="view_mode">list,form</field></record>
+    <record id="action_uni_registrations" model="ir.actions.act_window"><field name="name">Registrations</field><field name="res_model">uni.course.registration</field><field name="view_mode">list,form</field></record>
+    <record id="action_uni_fee_invoices" model="ir.actions.act_window"><field name="name">Fees</field><field name="res_model">uni.fee.invoice</field><field name="view_mode">list,form</field></record>
+    <record id="action_uni_scholarships" model="ir.actions.act_window"><field name="name">Scholarships</field><field name="res_model">uni.scholarship</field><field name="view_mode">list,form</field></record>
+    <record id="action_uni_library_items" model="ir.actions.act_window"><field name="name">Library Items</field><field name="res_model">uni.library.item</field><field name="view_mode">list,form</field></record>
+    <record id="action_uni_library_loans" model="ir.actions.act_window"><field name="name">Library Loans</field><field name="res_model">uni.library.loan</field><field name="view_mode">list,form</field></record>
+    <record id="action_uni_notifications" model="ir.actions.act_window"><field name="name">Notifications</field><field name="res_model">uni.notification</field><field name="view_mode">list,form</field></record>
+    <record id="view_uni_admission_tree" model="ir.ui.view"><field name="name">uni.admission.list</field><field name="model">uni.admission</field><field name="arch" type="xml"><list><field name="name"/><field name="email"/><field name="department_id"/><field name="term_id"/><field name="application_date"/><field name="state"/></list></field></record>
+    <record id="view_uni_admission_form" model="ir.ui.view"><field name="name">uni.admission.form</field><field name="model">uni.admission</field><field name="arch" type="xml"><form><sheet><group><field name="name"/><field name="email"/><field name="phone"/><field name="department_id"/><field name="term_id"/><field name="application_date"/><field name="state"/><field name="student_id" readonly="1"/></group><group><field name="notes"/></group></sheet><chatter/></form></field></record>
+    <record id="view_uni_assignment_submission_tree" model="ir.ui.view"><field name="name">uni.assignment.submission.list</field><field name="model">uni.assignment.submission</field><field name="arch" type="xml"><list><field name="assignment_id"/><field name="student_id"/><field name="submission_date"/><field name="state"/><field name="score"/><field name="file_name"/></list></field></record>
+    <record id="view_uni_assignment_submission_form" model="ir.ui.view"><field name="name">uni.assignment.submission.form</field><field name="model">uni.assignment.submission</field><field name="arch" type="xml"><form><sheet><group><field name="assignment_id"/><field name="student_id"/><field name="submission_date"/><field name="state"/><field name="score"/><field name="file_name"/><field name="file_data" filename="file_name"/><field name="feedback"/></group></sheet></form></field></record>
+    <record id="view_uni_exam_result_tree" model="ir.ui.view"><field name="name">uni.exam.result.list</field><field name="model">uni.exam.result</field><field name="arch" type="xml"><list><field name="exam_id"/><field name="student_id"/><field name="score"/><field name="state"/><field name="note"/></list></field></record>
+    <record id="view_uni_exam_result_form" model="ir.ui.view"><field name="name">uni.exam.result.form</field><field name="model">uni.exam.result</field><field name="arch" type="xml"><form><sheet><group><field name="exam_id"/><field name="student_id"/><field name="score"/><field name="state"/><field name="note"/></group></sheet></form></field></record>
+    <record id="view_uni_resit_request_tree" model="ir.ui.view"><field name="name">uni.resit.request.list</field><field name="model">uni.resit.request</field><field name="arch" type="xml"><list><field name="exam_result_id"/><field name="student_id"/><field name="request_date"/><field name="fee_invoice_id"/><field name="state"/></list></field></record>
+    <record id="view_uni_resit_request_form" model="ir.ui.view"><field name="name">uni.resit.request.form</field><field name="model">uni.resit.request</field><field name="arch" type="xml"><form><sheet><group><field name="exam_result_id"/><field name="student_id"/><field name="request_date"/><field name="fee_invoice_id" readonly="1"/><field name="state"/><field name="reason"/></group></sheet></form></field></record>
+    <record id="action_uni_admissions" model="ir.actions.act_window"><field name="name">Admissions</field><field name="res_model">uni.admission</field><field name="view_mode">list,form</field></record>
+    <record id="action_uni_assignment_submissions" model="ir.actions.act_window"><field name="name">Submissions</field><field name="res_model">uni.assignment.submission</field><field name="view_mode">list,form</field></record>
+    <record id="action_uni_exam_results" model="ir.actions.act_window"><field name="name">Exam Results</field><field name="res_model">uni.exam.result</field><field name="view_mode">list,form</field></record>
+    <record id="action_uni_resit_requests" model="ir.actions.act_window"><field name="name">Resit Requests</field><field name="res_model">uni.resit.request</field><field name="view_mode">list,form</field></record>
+</odoo>

@@ -1,0 +1,12 @@
+[options]
+addons_path = <path-to-odoo-addons>,<path-to-this-repo>\university
+admin_passwd = change-me
+db_host = localhost
+db_port = 5432
+db_user = openpg
+db_password = openpgpwd
+http_port = 8069
+list_db = True
+log_level = info
+server_wide_modules = base,rpc,web
+with_demo = False

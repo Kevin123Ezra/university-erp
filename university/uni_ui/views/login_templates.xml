@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="university_login_layout" inherit_id="web.login_layout" name="University Login Layout">
+        <xpath expr="//div[hasclass('container') and hasclass('py-5')]" position="attributes">
+            <attribute name="class">container py-5 o_university_login_shell</attribute>
+        </xpath>
+        <xpath expr="//div[hasclass('o_database_list')]" position="attributes">
+            <attribute name="class">card border-0 mx-auto o_university_login_card o_database_list</attribute>
+            <attribute name="style">max-width: 420px;</attribute>
+        </xpath>
+        <xpath expr="//div[hasclass('text-center') and hasclass('pb-3') and hasclass('border-bottom') and hasclass('mb-4')]" position="replace">
+            <div class="o_university_login_brand">
+                <div class="o_university_brand_mark">
+                    <span t-esc="request.env.company.university_code or 'UNI'"/>
+                </div>
+                <div class="o_university_brand_copy">
+                    <div class="o_university_brand_name" t-esc="request.env.company.university_name or request.env.company.name"/>
+                    <div class="o_university_brand_tagline" t-esc="request.env.company.university_tagline or 'University ERP'"/>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="university_login_form" inherit_id="web.login" name="University Login Form">
+        <xpath expr="//form" position="before">
+            <section class="o_university_login_intro">
+                <p class="o_university_login_kicker">Campus ERP</p>
+                <h1>Start your day from one place.</h1>
+                <p class="o_university_login_copy">
+                    Academic operations, faculty workflows, student services, and finance on a single platform.
+                </p>
+                <div class="o_university_role_hints">
+                    <span>Student</span>
+                    <span>Faculty</span>
+                    <span>Admin</span>
+                </div>
+            </section>
+        </xpath>
+        <xpath expr="//label[@for='login']" position="replace">
+            <label for="login" class="form-label d-flex justify-content-between">University Email</label>
+        </xpath>
+        <xpath expr="//input[@name='login']" position="attributes">
+            <attribute name="placeholder">name@university.edu</attribute>
+        </xpath>
+        <xpath expr="//button[@type='submit' and contains(@class, 'btn btn-primary')]" position="attributes">
+            <attribute name="class">btn btn-primary o_university_primary_btn</attribute>
+        </xpath>
+    </template>
+
+    <template id="university_webclient_title" inherit_id="web.frontend_layout" name="University Page Title">
+        <xpath expr="//title" position="replace">
+            <title t-esc="(request and request.env.company.university_name) or 'University ERP'"/>
+        </xpath>
+    </template>
+</odoo>
