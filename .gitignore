@@ -9,8 +9,8 @@ university_frontend/node_modules/
 university_frontend/dist/
 
 # Local environment / editors
-.env
 .env.*
+!.env
 .DS_Store
 Thumbs.db
 

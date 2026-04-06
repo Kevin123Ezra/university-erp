@@ -1,108 +1,71 @@
 # University ERP
 
-Custom university ERP built as:
+This repository contains the custom code for the project:
 
-- an Odoo addon in [`university/uni_base`](./university/uni_base)
-- a separate React portal in [`university_frontend`](./university_frontend)
+- the Odoo addon in [`university/uni_base`](./university/uni_base)
+- the React portal in [`university_frontend`](./university_frontend)
 
-This repo stores the project code only. It is not meant to include the full Odoo source tree in GitHub.
+It is not a full Odoo source-code mirror. The React app depends on a running Odoo server and uses Odoo for authentication, data, and business logic.
 
-## Repo Layout
+## What is in this repo
 
 - `university/uni_base`
-  Main Odoo addon: models, views, controllers, seed data, AI services
+  Custom Odoo module with models, views, controllers, seed data, and AI integration
 - `university_frontend`
-  React + Vite portal for students, faculty, librarians, and admins
+  React + Vite portal for students, faculty, librarian, and admin flows
 - `.vscode`
-  VS Code tasks, launch config, workspace Python interpreter
+  Workspace tasks and launch configuration
 - `odoo.conf.example`
   Example local Odoo config
-- `.env.example`
-  Example local AI config
+- `.env` and `.env.example`
+  Gemini API key placeholder files
 
-## Implemented Features
+## Main features
 
-### Branding and access
+### Student portal
 
-- Visionary Minds University branding in Odoo and React
-- custom login experience
-- React login using Odoo session authentication
-- role-aware navigation and dashboards
-
-### Student features
-
-- overview with pending assignments, pending fees, upcoming exams, and enrolled classes
+- login through Odoo session auth
+- dashboard with pending assignments, pending fees, upcoming exams, and enrolled classes
+- class detail view from the home page
 - weekly timetable
-- course registration from the courses page
-- assignment submission from the assignments page
-- quiz assignments and upload assignments
-- online exams with MCQ, text, and upload question types
+- course registration
+- assignment submission
+- online exams
 - results and resit requests
-- pending vs paid fees view
-- combined library page
-- study assistant with note input or PDF upload
-- browser notifications drawer
+- fees page with pending and paid sections
+- library page
+- study assistant with notes or PDF upload
+- notification drawer and browser notifications
 
-### Faculty features
+### Faculty portal
 
-- faculty overview and teaching timetable
-- students grouped by assigned courses
-- at-risk student filtering
-- assignment create, edit, publish, delete
+- teaching overview
+- faculty timetable
+- students grouped by assigned course
+- at-risk filter for students
+- assignment creation, editing, publishing, deleting
 - submission review and grading
-- AI feedback draft generation during grading
-- exam create, edit, publish, delete
-- manual grading for written and upload exam answers
+- AI feedback drafting while grading
+- exam creation, editing, publishing, deleting
+- written/upload answer review and grading
 
-### Librarian features
+### Librarian and admin
 
-- `faculty1` seeded as librarian
-- librarian and admin can process library returns
-- fine amount can be applied on return
-- fine creates a fee invoice for the student
-- student notification is created for a library fine
-
-### Admin features
-
-- create students, faculty, and courses
-- assign courses to faculty
-- run at-risk scan manually
-- view registrations, issues, fees, library records, exams, and academic data
+- admin can create students, faculty, and courses
+- admin can assign courses to faculty
+- librarian/admin can process library returns
+- fines can be added to student fees
+- admin can run at-risk scans
 
 ### AI features
 
-- at-risk student predictor
-  - risk snapshots stored in Odoo
-  - weekly cron plus manual admin trigger
-  - advisor notification/activity for high and critical students
+- at-risk student prediction
 - study assistant
-  - summary
-  - practice MCQs
-  - gap analysis
-- AI feedback writer
-  - faculty can draft constructive feedback from mark + note
+- feedback drafting for faculty
 
-### Core backend models
+## Demo users
 
-- departments
-- terms
-- faculty
-- students
-- courses
-- timetable
-- attendance
-- grades and GPA
-- assignments and submissions
-- exams, questions, answers, results, resits
-- fees and scholarships
-- notifications
-- issues
-- library items and loans
-- student risk snapshots
-
-## Demo Accounts
-
-Seeded demo users:
+Seed data currently creates these usernames:
 
 - `student`
 - `student2`
@@ -110,21 +73,21 @@ Seeded demo users:
 - `faculty1`
 - `uniadmin`
 
-Passwords are seeded in the database by demo data and can be reset from Odoo user management if needed.
+Passwords are seeded in the database, not documented in the frontend. Reset them from Odoo if needed.
 
-## Local Prerequisites
+## What you need locally
 
 - PostgreSQL
 - Odoo runtime and dependencies
 - Node.js
-- the bundled Odoo Python or another Python environment with all Odoo dependencies installed
+- the Odoo Python environment
 
-## Odoo Setup
+## Odoo setup
 
-1. Install or keep Odoo locally.
-2. Copy `odoo.conf.example` to `odoo.conf`.
-3. Make sure `addons_path` includes this repo’s `university` directory.
-4. Set database connection values for your local machine.
+1. Install or keep a local Odoo instance.
+2. Copy [`odoo.conf.example`](./odoo.conf.example) to `odoo.conf`.
+3. Make sure `addons_path` includes this repo's `university` directory.
+4. Set the database connection for your machine.
 
 Example:
 
@@ -138,42 +101,33 @@ db_password = openpgpwd
 http_port = 8069
 ```
 
-## AI Setup
+## Gemini API key
 
-Use a local `.env` file in the repo root.
+This repo includes:
 
-1. Copy `.env.example` to `.env`
-2. Set:
+- [`.env`](./.env)
+- [`.env.example`](./.env.example)
+
+Both are intentionally empty in GitHub. Put your Gemini key in `.env` locally:
 
 ```env
 UNI_GEMINI_API_KEY=your_real_key_here
 ```
 
-Resolution order used by the addon:
+Do not commit a real API key.
 
-1. real environment variable `UNI_GEMINI_API_KEY`
-2. repo-root `.env`
-3. company setting fallback
+## Running the project
 
-`.env` is ignored by git.
+You need both servers running:
 
-## VS Code Setup
+1. the Odoo server on port `8069`
+2. the React dev server from `university_frontend`
 
-The workspace defaults to:
-
-- [`..\\python\\python.exe`](../python/python.exe)
-
-That is the bundled Odoo Python used by the tasks and debugger. If your setup differs, update:
-
-- [`.vscode/settings.json`](./.vscode/settings.json)
-
-Do not use the Windows Store Python for Odoo unless it has all required Odoo packages installed.
-
-## Start Development
+The React app on its own is not enough. It calls the Odoo backend for login, data, grading, AI actions, and everything else.
 
 ### VS Code
 
-Press `Ctrl+Shift+B`.
+Use `Ctrl+Shift+B`.
 
 Available tasks:
 
@@ -182,13 +136,13 @@ Available tasks:
 - `Start Frontend`
 - `Start All`
 
-Recommended workflow:
+Typical flow:
 
 1. run `Upgrade University Base` after backend changes
 2. run `Start Odoo`
 3. run `Start Frontend`
 
-### Manual Commands
+### Manual commands
 
 From the repo root:
 
@@ -198,13 +152,13 @@ Start Odoo:
 .\..\python\python.exe .\odoo-bin --config=.\odoo.conf -d admin
 ```
 
-Upgrade the addon after backend changes:
+Upgrade the addon:
 
 ```powershell
 .\..\python\python.exe .\odoo-bin --config=.\odoo.conf -d admin -u uni_base --stop-after-init
 ```
 
-Start the frontend:
+Start the React app:
 
 ```powershell
 cd .\university_frontend
@@ -212,19 +166,20 @@ npm.cmd install
 npm.cmd run dev
 ```
 
-## Daily Workflow
+Then open:
 
-1. edit backend code in `university/uni_base`
-2. run the `uni_base` upgrade
-3. restart Odoo if needed
-4. edit frontend code in `university_frontend`
-5. hard refresh the browser when checking UI changes
+- Odoo: `http://localhost:8069`
+- React portal: `http://localhost:5173`
 
-## Important Files
+## Development notes
 
-- [`university/uni_base/__manifest__.py`](./university/uni_base/__manifest__.py)
+- backend changes in `university/uni_base` usually require an addon upgrade
+- frontend-only changes in `university_frontend` usually just need a browser refresh
+- the React app uses the Odoo session and API routes under `/web` and `/uni`
+
+## Important files
+
 - [`university/uni_base/controllers/api.py`](./university/uni_base/controllers/api.py)
-- [`university/uni_base/models/res_company.py`](./university/uni_base/models/res_company.py)
 - [`university/uni_base/models/res_users.py`](./university/uni_base/models/res_users.py)
 - [`university/uni_base/models/university_core.py`](./university/uni_base/models/university_core.py)
 - [`university/uni_base/models/university_extended.py`](./university/uni_base/models/university_extended.py)
@@ -232,35 +187,24 @@ npm.cmd run dev
 - [`university_frontend/src/App.jsx`](./university_frontend/src/App.jsx)
 - [`university_frontend/src/styles.css`](./university_frontend/src/styles.css)
 
-## GitHub Contents
+## What to push to GitHub
 
-For the project repo, push the custom project files only:
+Push the project code:
 
 - `university/`
 - `university_frontend/`
 - `.vscode/`
 - `README.md`
 - `.gitignore`
+- `.env`
 - `.env.example`
 - `odoo.conf.example`
 
-Do not push local runtime/config artifacts like:
+Do not push machine-specific runtime files like:
 
-- local `odoo.conf`
-- `.env`
+- local `odoo.conf` with real credentials
+- filled-in secrets
 - logs
 - `node_modules`
-- database storage
-- the full Odoo source tree unless you intentionally want an Odoo fork
-
-## Notes
-
-- The React frontend talks to Odoo through `/web` and `/uni` routes.
-- The frontend depends on an Odoo session.
-- Some Odoo 19 warnings still remain in local logs:
-  - PostgreSQL 12 below recommended minimum
-  - legacy `_sql_constraints`
-  - manifest `author` missing
-  - login template XPath class warnings
-
-Those warnings do not currently block startup or the main flows.
+- database or filestore data
+- the full Odoo source tree unless you intentionally want to maintain an Odoo fork
