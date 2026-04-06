@@ -523,6 +523,30 @@ td {
   font-weight: 700;
 }
 
+.riskBadge {
+  margin-top: 0;
+}
+
+.riskBadge.low {
+  background: rgba(20, 92, 58, 0.12);
+  color: #145c3a;
+}
+
+.riskBadge.medium {
+  background: rgba(180, 120, 0, 0.14);
+  color: #9a6500;
+}
+
+.riskBadge.high {
+  background: rgba(188, 71, 73, 0.14);
+  color: #bc4749;
+}
+
+.riskBadge.critical {
+  background: rgba(130, 10, 10, 0.16);
+  color: #820a0a;
+}
+
 .courseGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));

@@ -79,6 +79,21 @@ function formatValue(value) {
   return String(value);
 }
 
+function normalizeRiskLevel(value) {
+  const risk = String(value || "").toLowerCase();
+  return ["low", "medium", "high", "critical"].includes(risk) ? risk : "";
+}
+
+function renderCellValue(column, value) {
+  if (column === "risk_level") {
+    const risk = normalizeRiskLevel(value);
+    if (risk) {
+      return <span className={`inlineBadge riskBadge ${risk}`}>{formatValue(value)}</span>;
+    }
+  }
+  return formatValue(value);
+}
+
 function getAcronym(name) {
   return String(name || "")
     .split(/\s+/)
@@ -281,15 +296,15 @@ function DataTable({ title, records, actions, hiddenColumns = [] }) {
               {columns.map((column) => <th key={column}>{column}</th>)}
               {actions ? <th>actions</th> : null}
             </tr>
-          </thead>
-          <tbody>
-            {records.map((record) => (
-              <tr key={record.id}>
-                {columns.map((column) => <td key={column}>{formatValue(record[column])}</td>)}
-                {actions ? <td>{actions(record)}</td> : null}
-              </tr>
-            ))}
-          </tbody>
+            </thead>
+            <tbody>
+              {records.map((record) => (
+                <tr key={record.id}>
+                  {columns.map((column) => <td key={column}>{renderCellValue(column, record[column])}</td>)}
+                  {actions ? <td>{actions(record)}</td> : null}
+                </tr>
+              ))}
+            </tbody>
         </table>
       </div>
     </section>
@@ -885,13 +900,13 @@ function Portal({ portalData, onLogout, onRefresh }) {
     }
   }, [isStudent, studentNotifications]);
 
-  async function runAction(action) {
+  async function runAction(action, successMessage = "Saved.") {
     setBusy(true);
     setMessage("");
     try {
       await action();
       await onRefresh();
-      setMessage("Saved.");
+      setMessage(successMessage);
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -942,9 +957,9 @@ function Portal({ portalData, onLogout, onRefresh }) {
     );
   }
 
-  function renderStudentsPage() {
-    if (isFaculty) {
-      const filteredRecords = showAtRiskOnly ? currentRecords.filter((record) => ["high", "critical"].includes(String(record.risk_level || "").toLowerCase())) : currentRecords;
+    function renderStudentsPage() {
+      if (isFaculty) {
+        const filteredRecords = showAtRiskOnly ? currentRecords.filter((record) => ["high", "critical"].includes(String(record.risk_level || "").toLowerCase())) : currentRecords;
       const groupedRecords = filteredRecords.reduce((accumulator, record) => {
         const key = record.course || "Unassigned course";
         accumulator[key] = accumulator[key] || [];
@@ -974,24 +989,26 @@ function Portal({ portalData, onLogout, onRefresh }) {
           )) : <section className="card dataCard"><p className="muted">No students registered in your subjects yet.</p></section>}
         </>
       );
-    }
-    return (
-      <>
-        <SectionHeader title={currentLabel} />
-        {isAdmin ? (
-          <>
-            <section className="card dataCard">
-              <div className="tableActions">
-                <button type="button" className="ghostButton tableButton" disabled={busy} onClick={() => runAction(() => triggerRiskScan())}>Run at-risk scan</button>
-              </div>
-              {message ? <p className="muted actionMessage">{message}</p> : null}
-            </section>
-            <SimpleForm title="Add student" busy={busy} message="" submitLabel="Create student" fields={[{ name: "name", label: "Full name", required: true }, { name: "login", label: "Username", required: true }, { name: "password", label: "Password", required: true, type: "password" }, { name: "email", label: "Email", type: "email" }, { name: "student_number", label: "Student number", required: true }, { name: "department_id", label: "Department", required: true, type: "select", options: departmentOptions }, { name: "advisor_id", label: "Advisor", type: "select", options: facultyOptions }, { name: "term_id", label: "Term", required: true, type: "select", options: termOptions }]} onSubmit={(form, reset) => runAction(async () => { await createStudent({ ...form, department_id: Number(form.department_id), advisor_id: form.advisor_id ? Number(form.advisor_id) : false, term_id: Number(form.term_id), state: "enrolled" }); reset(); })} />
-          </>
-        ) : <SectionMessage message={message} />}
-        <DataTable title={currentLabel} records={currentRecords} />
-      </>
-    );
+      }
+      const atRiskRecords = currentRecords.filter((record) => ["high", "critical"].includes(String(record.risk_level || "").toLowerCase()));
+      return (
+        <>
+          <SectionHeader title={currentLabel} />
+          {isAdmin ? (
+            <>
+              <section className="card dataCard">
+                <div className="tableActions">
+                  <button type="button" className="ghostButton tableButton" disabled={busy} onClick={() => runAction(() => triggerRiskScan(), "At-risk scan completed.")}>Run at-risk scan</button>
+                </div>
+                {message ? <p className="muted actionMessage">{message}</p> : null}
+              </section>
+              <SimpleForm title="Add student" busy={busy} message="" submitLabel="Create student" fields={[{ name: "name", label: "Full name", required: true }, { name: "login", label: "Username", required: true }, { name: "password", label: "Password", required: true, type: "password" }, { name: "email", label: "Email", type: "email" }, { name: "student_number", label: "Student number", required: true }, { name: "department_id", label: "Department", required: true, type: "select", options: departmentOptions }, { name: "advisor_id", label: "Advisor", type: "select", options: facultyOptions }, { name: "term_id", label: "Term", required: true, type: "select", options: termOptions }]} onSubmit={(form, reset) => runAction(async () => { await createStudent({ ...form, department_id: Number(form.department_id), advisor_id: form.advisor_id ? Number(form.advisor_id) : false, term_id: Number(form.term_id), state: "enrolled" }); reset(); })} />
+              {atRiskRecords.length ? <DataTable title="At-risk students needing intervention" records={atRiskRecords} /> : null}
+            </>
+          ) : <SectionMessage message={message} />}
+          <DataTable title={currentLabel} records={currentRecords} />
+        </>
+      );
   }
   function renderFacultyPage() { return (<><SectionHeader title={currentLabel} />{isAdmin ? <SimpleForm title="Add faculty member" busy={busy} message={message} submitLabel="Create faculty" fields={[{ name: "name", label: "Full name", required: true, defaultValue: "Amina Rahman" }, { name: "title", label: "Title", required: true, defaultValue: "Dr." }, { name: "login", label: "Username", required: true }, { name: "password", label: "Password", required: true, type: "password" }, { name: "email", label: "Email", type: "email" }, { name: "department_id", label: "Department", required: true, type: "select", options: departmentOptions }, { name: "max_load_hours", label: "Max load hours", required: true, type: "number", defaultValue: "12" }]} onSubmit={(form, reset) => runAction(async () => { await createFaculty({ ...form, department_id: Number(form.department_id), max_load_hours: Number(form.max_load_hours) }); reset(); })} /> : <SectionMessage message={message} />}<DataTable title={currentLabel} records={currentRecords} /></>); }
   function renderCoursesPage() {
