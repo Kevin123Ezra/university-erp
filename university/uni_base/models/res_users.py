@@ -77,6 +77,16 @@ class ResUsers(models.Model):
                 ],
             },
             {
+                "name": "Student At Risk Demo",
+                "login": "student2",
+                "password": "student123",
+                "email": "student2@university.local",
+                "groups": [
+                    self.env.ref("base.group_user").id,
+                    self.env.ref("uni_base.group_university_student").id,
+                ],
+            },
+            {
                 "name": "Faculty One Demo",
                 "login": "faculty1",
                 "password": "faculty123",
@@ -122,6 +132,7 @@ class ResUsers(models.Model):
         faculty_user = self.search([("login", "=", "faculty")], limit=1)
         faculty_user_2 = self.search([("login", "=", "faculty1")], limit=1)
         student_user = self.search([("login", "=", "student")], limit=1)
+        student_user_2 = self.search([("login", "=", "student2")], limit=1)
         admin_user = self.search([("login", "=", "uniadmin")], limit=1)
 
         faculty = faculty_model.search([("user_id", "=", faculty_user.id)], limit=1)
@@ -169,6 +180,23 @@ class ResUsers(models.Model):
             )
         else:
             student.write({"department_id": cs_department.id, "advisor_id": faculty.id, "term_id": term.id})
+
+        student_two = student_model.search([("user_id", "=", student_user_2.id)], limit=1)
+        if not student_two:
+            student_two = student_model.create(
+                {
+                    "name": "Layla Nasser",
+                    "user_id": student_user_2.id,
+                    "email": "student2@university.local",
+                    "student_number": "STU-2026-002",
+                    "department_id": cs_department.id,
+                    "advisor_id": faculty.id,
+                    "term_id": term.id,
+                    "state": "enrolled",
+                }
+            )
+        else:
+            student_two.write({"department_id": cs_department.id, "advisor_id": faculty.id, "term_id": term.id})
 
         course = course_model.search([("code", "=", "CSE401")], limit=1)
         if not course:
@@ -411,6 +439,28 @@ class ResUsers(models.Model):
                     "note": "Consistent work on cloud labs.",
                 }
             )
+        if not grade_model.search([("student_id", "=", student_two.id), ("course_id", "=", course.id)], limit=1):
+            grade_model.create(
+                {
+                    "student_id": student_two.id,
+                    "course_id": course.id,
+                    "term_id": term.id,
+                    "credit_hours": 3.0,
+                    "percentage": 48.0,
+                    "note": "Multiple core concepts were missed in the assessment.",
+                }
+            )
+        if not grade_model.search([("student_id", "=", student_two.id), ("course_id", "=", course_two.id)], limit=1):
+            grade_model.create(
+                {
+                    "student_id": student_two.id,
+                    "course_id": course_two.id,
+                    "term_id": term.id,
+                    "credit_hours": 3.0,
+                    "percentage": 55.0,
+                    "note": "Submission quality is below the expected pass standard.",
+                }
+            )
 
         if not attendance_model.search([("student_id", "=", student.id), ("course_id", "=", course.id)], limit=1):
             attendance_model.create(
@@ -447,6 +497,44 @@ class ResUsers(models.Model):
                         "faculty_id": faculty_two.id,
                         "session_date": "2026-04-04",
                         "status": "present",
+                    },
+                ]
+            )
+        if not attendance_model.search([("student_id", "=", student_two.id), ("course_id", "=", course.id)], limit=1):
+            attendance_model.create(
+                [
+                    {
+                        "student_id": student_two.id,
+                        "course_id": course.id,
+                        "faculty_id": faculty.id,
+                        "session_date": "2026-04-01",
+                        "status": "absent",
+                    },
+                    {
+                        "student_id": student_two.id,
+                        "course_id": course.id,
+                        "faculty_id": faculty.id,
+                        "session_date": "2026-04-03",
+                        "status": "absent",
+                    },
+                ]
+            )
+        if not attendance_model.search([("student_id", "=", student_two.id), ("course_id", "=", course_two.id)], limit=1):
+            attendance_model.create(
+                [
+                    {
+                        "student_id": student_two.id,
+                        "course_id": course_two.id,
+                        "faculty_id": faculty_two.id,
+                        "session_date": "2026-04-02",
+                        "status": "late",
+                    },
+                    {
+                        "student_id": student_two.id,
+                        "course_id": course_two.id,
+                        "faculty_id": faculty_two.id,
+                        "session_date": "2026-04-04",
+                        "status": "absent",
                     },
                 ]
             )
@@ -558,6 +646,28 @@ class ResUsers(models.Model):
                     "status": "registered",
                     "registered_on": "2026-01-15",
                     "note": "Seeded second-course registration for demo data.",
+                }
+            )
+        if not registration_model.search([("student_id", "=", student_two.id), ("course_id", "=", course.id), ("term_id", "=", term.id)], limit=1):
+            registration_model.create(
+                {
+                    "student_id": student_two.id,
+                    "course_id": course.id,
+                    "term_id": term.id,
+                    "status": "registered",
+                    "registered_on": "2026-01-15",
+                    "note": "Seeded at-risk registration for demo data.",
+                }
+            )
+        if not registration_model.search([("student_id", "=", student_two.id), ("course_id", "=", course_two.id), ("term_id", "=", term.id)], limit=1):
+            registration_model.create(
+                {
+                    "student_id": student_two.id,
+                    "course_id": course_two.id,
+                    "term_id": term.id,
+                    "status": "registered",
+                    "registered_on": "2026-01-15",
+                    "note": "Seeded at-risk second-course registration for demo data.",
                 }
             )
 

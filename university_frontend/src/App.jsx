@@ -797,10 +797,10 @@ function LoginScreen({ defaultDb, onLogin, loading, error }) {
           </div>
           <p className="tagline">Access academics, exams, fees, library resources, and teaching operations through the Visionary Minds University portal.</p>
           <div className="loginHints">
-            <span>student / student123</span>
-            <span>faculty / faculty123</span>
-            <span>faculty1 / faculty123</span>
-            <span>uniadmin / uniadmin123</span>
+            <span>Student portal</span>
+            <span>Faculty workspace</span>
+            <span>Library and academics</span>
+            <span>Admin operations</span>
           </div>
         </section>
         <form className="card loginCard" onSubmit={(event) => { event.preventDefault(); onLogin(form); }}>
