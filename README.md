@@ -106,15 +106,12 @@ http_port = 8069
 This repo includes:
 
 - [`.env`](./.env)
-- [`.env.example`](./.env.example)
 
-Both are intentionally empty in GitHub. Put your Gemini key in `.env` locally:
+Put your Gemini key in `.env` locally:
 
 ```env
 UNI_GEMINI_API_KEY=your_real_key_here
 ```
-
-Do not commit a real API key.
 
 ## Running the project
 
@@ -169,42 +166,5 @@ npm.cmd run dev
 Then open:
 
 - Odoo: `http://localhost:8069`
-- React portal: `http://localhost:5173`
+- React portal: `http://localhost:5173` (Recommended as it has better UI)
 
-## Development notes
-
-- backend changes in `university/uni_base` usually require an addon upgrade
-- frontend-only changes in `university_frontend` usually just need a browser refresh
-- the React app uses the Odoo session and API routes under `/web` and `/uni`
-
-## Important files
-
-- [`university/uni_base/controllers/api.py`](./university/uni_base/controllers/api.py)
-- [`university/uni_base/models/res_users.py`](./university/uni_base/models/res_users.py)
-- [`university/uni_base/models/university_core.py`](./university/uni_base/models/university_core.py)
-- [`university/uni_base/models/university_extended.py`](./university/uni_base/models/university_extended.py)
-- [`university/uni_base/models/university_ai.py`](./university/uni_base/models/university_ai.py)
-- [`university_frontend/src/App.jsx`](./university_frontend/src/App.jsx)
-- [`university_frontend/src/styles.css`](./university_frontend/src/styles.css)
-
-## What to push to GitHub
-
-Push the project code:
-
-- `university/`
-- `university_frontend/`
-- `.vscode/`
-- `README.md`
-- `.gitignore`
-- `.env`
-- `.env.example`
-- `odoo.conf.example`
-
-Do not push machine-specific runtime files like:
-
-- local `odoo.conf` with real credentials
-- filled-in secrets
-- logs
-- `node_modules`
-- database or filestore data
-- the full Odoo source tree unless you intentionally want to maintain an Odoo fork
