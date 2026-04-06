@@ -81,15 +81,6 @@ Push these project folders/files:
 - `.gitignore`
 - `odoo.conf.example`
 
-Do not push:
-
-- your local `odoo.conf`
-- `node_modules`
-- logs
-- local database/filestore data
-- machine-specific secrets
-- the full Odoo source tree unless you intentionally want to maintain an Odoo fork
-
 ## Prerequisites
 
 - Python installed and selected in VS Code
