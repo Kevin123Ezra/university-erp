@@ -150,7 +150,8 @@ class ResUsers(models.Model):
                 }
             )
         else:
-            faculty_two.write({"department_id": cs_department.id})
+            faculty_two.write({"department_id": cs_department.id, "is_librarian": True})
+        faculty_two.write({"is_librarian": True})
 
         student = student_model.search([("user_id", "=", student_user.id)], limit=1)
         if not student:
@@ -380,6 +381,11 @@ class ResUsers(models.Model):
             else:
                 record = assignment_model.create(assignment_vals)
             seeded_assignments[seeded_course.code] = record
+        generic_assignment_names = ["Test 1", "Test 2", "Assignment 1", "Assignment 2", "Quiz 1", "Quiz 2"]
+        for generic_name, replacement in zip(generic_assignment_names, [spec[2] for spec in assignment_specs]):
+            generic_record = assignment_model.search([("name", "=", generic_name)], limit=1)
+            if generic_record:
+                generic_record.write({"name": replacement, "state": "published"})
         assignment = seeded_assignments.get(course.code)
         assignment_two = seeded_assignments.get(course_two.code)
 
@@ -524,6 +530,11 @@ class ResUsers(models.Model):
             else:
                 record = exam_model.create(exam_vals)
             seeded_exams[seeded_course.code] = record
+        generic_exam_names = ["Test 1", "Test 2", "Exam 1", "Exam 2", "Quiz 1", "Quiz 2"]
+        for generic_name, replacement in zip(generic_exam_names, [spec[2] for spec in exam_specs]):
+            generic_record = exam_model.search([("name", "=", generic_name)], limit=1)
+            if generic_record:
+                generic_record.write({"name": replacement, "state": "visible"})
         exam = seeded_exams.get(course.code)
         exam_two = seeded_exams.get(course_two.code)
 
@@ -741,6 +752,7 @@ class ResUsers(models.Model):
                     "state": "submitted",
                 }
             )
+        self.env["uni.ai.service"].sudo().run_weekly_risk_scan()
         return True
 
     def _get_university_home_action(self):
@@ -790,6 +802,7 @@ class ResUsers(models.Model):
         timetable_model = self.env["uni.timetable"].sudo()
         assignment_model = self.env["uni.assignment"].sudo()
         issue_model = self.env["uni.issue"].sudo()
+        risk_model = self.env["uni.student.risk.snapshot"].sudo()
         role = "admin"
         highlights = [
             "Monitor open crashes, registration blockers, and timetable conflicts.",
@@ -798,7 +811,7 @@ class ResUsers(models.Model):
         cards = [
             {"label": "Open Issues", "value": str(issue_model.search_count([("state", "=", "open")]) if issue_model else 0), "hint": "Issues awaiting action"},
             {"label": "Critical Crashes", "value": str(issue_model.search_count([("issue_type", "=", "crash"), ("priority", "=", "3"), ("state", "!=", "resolved")]) if issue_model else 0), "hint": "Production-impacting failures"},
-            {"label": "Blocked Work", "value": str(issue_model.search_count([("state", "=", "blocked")]) if issue_model else 0), "hint": "Processes currently blocked"},
+            {"label": "At-Risk Students", "value": str(risk_model.search_count([("risk_level", "in", ["high", "critical"])]) if risk_model else 0), "hint": "Students needing intervention"},
         ]
         quick_links = [
             {"label": "Issues", "xmlid": "uni_base.action_uni_issues"},
@@ -828,6 +841,7 @@ class ResUsers(models.Model):
             lecture_count = timetable_model.search_count([("faculty_id", "=", faculty.id)]) if faculty and timetable_model else 0
             ungraded = assignment_model.search_count([("faculty_id", "=", faculty.id), ("state", "=", "published")]) if faculty and assignment_model else 0
             faculty_issues = issue_model.search_count([("assignee_faculty_id", "=", faculty.id), ("state", "!=", "resolved")]) if faculty and issue_model else 0
+            at_risk = risk_model.search_count([("student_id.advisor_id", "=", faculty.id), ("risk_level", "in", ["high", "critical"])]) if faculty and risk_model else 0
             role = "faculty"
             highlights = [
                 "Teaching load now comes from courses and timetable slots.",
@@ -836,6 +850,7 @@ class ResUsers(models.Model):
             cards = [
                 {"label": "Scheduled Lectures", "value": str(lecture_count), "hint": "Current term timetable slots"},
                 {"label": "Active Assignments", "value": str(ungraded), "hint": "Published assignment queue"},
+                {"label": "At-Risk Advisees", "value": str(at_risk), "hint": "Students who need proactive outreach"},
                 {"label": "Assigned Issues", "value": str(faculty_issues), "hint": "Operational issues on your desk"},
             ]
             quick_links = [{"label": "Attendance", "xmlid": "uni_base.action_uni_attendance"}, {"label": "Assignments", "xmlid": "uni_base.action_uni_assignments"}, {"label": "Exam Results", "xmlid": "uni_base.action_uni_exam_results"}]
@@ -916,17 +931,19 @@ class ResUsers(models.Model):
                     "student": registration.student_id.name,
                     "student_number": registration.student_id.student_number,
                     "username": registration.student_id.user_login,
+                    "risk_level": registration.student_id.risk_level,
+                    "risk_reason_summary": registration.student_id.risk_reason_summary,
                     "status": registration.status,
                     "registered_on": registration.registered_on,
                 }
                 for registration in faculty_student_rows
             ]
         else:
-            result_domain = student_domain if student else []
-            submission_domain = student_domain if student else []
+            result_domain = [("student_id", "=", student.id), ("exam_id.state", "=", "visible")] if student else []
+            submission_domain = [("student_id", "=", student.id), ("assignment_id.state", "in", ["published", "late", "closed"])] if student else []
             student_page_records = safe_records(
                 "uni.student",
-                ["name", "student_number", "user_login", "state", "attendance_rate", "current_gpa", "overdue_invoice_count", "exam_blocked"],
+                ["name", "student_number", "user_login", "state", "attendance_rate", "current_gpa", "overdue_invoice_count", "exam_blocked", "risk_level", "risk_reason_summary"],
                 limit=50,
                 order="name",
             )
@@ -1018,14 +1035,14 @@ class ResUsers(models.Model):
             "libraryItems": safe_records(
                 "uni.library.item",
                 ["title", "author", "isbn", "available_copies", "digital_link", "course_id"],
-                library_item_domain,
+                [] if (faculty and faculty.is_librarian) or dashboard["role"] == "admin" else library_item_domain,
                 limit=50,
                 order="title",
             ),
             "libraryLoans": safe_records(
                 "uni.library.loan",
-                ["item_id", "borrow_date", "due_date", "return_date", "state", "fine_amount"],
-                student_domain if student else [],
+                ["item_id", "student_id", "borrow_date", "due_date", "return_date", "state", "fine_amount"],
+                [] if (faculty and faculty.is_librarian) or dashboard["role"] == "admin" else (student_domain if student else []),
                 limit=50,
                 order="borrow_date desc",
             ),
@@ -1043,6 +1060,13 @@ class ResUsers(models.Model):
                 limit=50,
                 order="opened_on desc",
             ),
+            "riskSnapshots": safe_records(
+                "uni.student.risk.snapshot",
+                ["student_id", "risk_level", "top_reason_1", "top_reason_2", "generated_on", "source"],
+                [("student_id", "=", student.id)] if student else [],
+                limit=20,
+                order="generated_on desc",
+            ),
         }
 
         return {
@@ -1052,6 +1076,7 @@ class ResUsers(models.Model):
             "context": {
                 "student_id": student.id if student else False,
                 "faculty_id": faculty.id if faculty else False,
+                "is_librarian": bool(faculty and faculty.is_librarian),
             },
             "lookups": {
                 "departments": safe_records("uni.department", ["name", "code"], limit=100, order="name"),

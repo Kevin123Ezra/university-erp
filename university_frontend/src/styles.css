@@ -421,6 +421,11 @@ td {
   min-width: 0;
 }
 
+.fullWidthCard,
+.fullSpan {
+  grid-column: 1 / -1;
+}
+
 .stackList {
   display: grid;
   gap: 12px;
@@ -430,6 +435,12 @@ td {
   display: grid;
   gap: 12px;
   margin-bottom: 16px;
+}
+
+.studyAssistantActions {
+  margin-top: 18px;
+  display: flex;
+  gap: 12px;
 }
 
 .weekGrid {

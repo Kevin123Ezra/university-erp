@@ -5,6 +5,7 @@ const pageMeta = [
   { id: "students", label: "Students" },
   { id: "faculty", label: "Faculty" },
   { id: "courses", label: "Courses" },
+  { id: "study_assistant", label: "Study Assistant" },
   { id: "timetable", label: "Timetable" },
   { id: "assignments", label: "Assignments" },
   { id: "submissions", label: "Submissions" },
@@ -24,7 +25,7 @@ const roleTitles = {
 };
 
 const rolePages = {
-  student: ["overview", "courses", "timetable", "assignments", "exams", "results", "resits", "fees", "scholarships", "library"],
+  student: ["overview", "courses", "study_assistant", "timetable", "assignments", "exams", "results", "resits", "fees", "scholarships", "library"],
   faculty: ["overview", "students", "timetable", "assignments", "submissions", "exams", "results", "issues"],
   admin: pageMeta.map((page) => page.id),
 };
@@ -66,6 +67,11 @@ const submitExam = (exam_id, answers) => odooJsonRpc("/uni/api/exams/submit", { 
 const gradeWrittenExam = (result_id, grades, note) => odooJsonRpc("/uni/api/exam_results/grade_written", { result_id, grades, note });
 const createResit = (values) => odooJsonRpc("/uni/api/resits/create", { values });
 const payFee = (invoice_id, amount) => odooJsonRpc("/uni/api/fees/pay", { invoice_id, amount });
+const requestStudyAssistant = (notes, course_id, file_name, file_data) => odooJsonRpc("/uni/api/ai/study_assistant", { notes, course_id, file_name, file_data });
+const requestFeedbackDraft = (assignment_title, student_name, score, short_note) =>
+  odooJsonRpc("/uni/api/ai/feedback_draft", { assignment_title, student_name, score, short_note });
+const triggerRiskScan = () => odooJsonRpc("/uni/api/ai/risk_scan");
+const updateLibraryLoan = (loan_id, state, fine_amount) => odooJsonRpc("/uni/api/library_loans/update", { loan_id, state, fine_amount });
 
 function formatValue(value) {
   if (Array.isArray(value)) return value[1];
@@ -592,6 +598,128 @@ function ExamResultReviewPanel({ result, answers, questions, busy, message, onSa
   );
 }
 
+function StudyAssistantPanel({ courseOptions, busy, message, result, onAnalyze }) {
+  const [courseId, setCourseId] = useState(courseOptions[0]?.value || "");
+  const [notes, setNotes] = useState("");
+  const [attachment, setAttachment] = useState(null);
+  const [showAnswers, setShowAnswers] = useState(false);
+
+  useEffect(() => {
+    if (!courseId && courseOptions[0]?.value) setCourseId(courseOptions[0].value);
+  }, [courseId, courseOptions]);
+  useEffect(() => {
+    setShowAnswers(false);
+  }, [result]);
+
+  return (
+    <>
+      <section className="card dataCard formCard">
+        <h2>AI study assistant</h2>
+        <p className="muted">Paste lecture notes or upload a PDF to get a summary, practice MCQs, and a quick gap analysis.</p>
+        <div className="inlineForm">
+          <label>
+            <span>Course</span>
+            <select value={courseId} onChange={(event) => setCourseId(event.target.value)}>
+              <option value="">General notes</option>
+              {courseOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            </select>
+          </label>
+          <label className="fullSpan">
+            <span>Lecture notes</span>
+            <textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Paste your lecture notes here..." />
+          </label>
+          <label className="fullSpan">
+            <span>Upload lecture PDF</span>
+            <input type="file" accept=".pdf" onChange={(event) => setAttachment(event.target.files?.[0] || null)} />
+          </label>
+        </div>
+        <div className="studyAssistantActions">
+          <button type="button" className="primaryButton compactButton" disabled={busy || (!notes.trim() && !attachment)} onClick={() => onAnalyze(notes, courseId ? Number(courseId) : false, attachment)}>
+          {busy ? "Analyzing your notes..." : "Analyze notes"}
+          </button>
+        </div>
+        {message ? <p className="muted actionMessage">{message}</p> : null}
+      </section>
+      {result ? (
+        <section className="contentGrid">
+          <section className="card dataCard">
+            <h2>Summary</h2>
+            <div className="stackList">
+              {(result.summary || []).map((item, index) => <div key={`${item}-${index}`} className="listCard"><p>{item}</p></div>)}
+            </div>
+          </section>
+          <section className="card dataCard">
+            <h2>Gap analysis</h2>
+            <p>{result.gap_analysis || "No major study gaps identified."}</p>
+          </section>
+          <section className="card dataCard fullWidthCard">
+            <h2>Practice MCQs</h2>
+            <div className="tableActions">
+              <button type="button" className="ghostButton tableButton" onClick={() => setShowAnswers((current) => !current)}>
+                {showAnswers ? "Hide answers" : "Show answers"}
+              </button>
+            </div>
+            <div className="questionList">
+              {(result.mcqs || []).map((mcq, index) => (
+                <div key={`${mcq.question}-${index}`} className="listCard">
+                  <strong>{index + 1}. {mcq.question}</strong>
+                  <p>{(mcq.options || []).join(" / ")}</p>
+                  {showAnswers ? <p className="muted">Correct answer: {mcq.answer}</p> : null}
+                </div>
+              ))}
+            </div>
+          </section>
+        </section>
+      ) : null}
+    </>
+  );
+}
+
+function SubmissionReviewPanel({ submission, busy, message, onGenerateFeedback, onSave }) {
+  const [score, setScore] = useState(String(submission?.score ?? ""));
+  const [feedback, setFeedback] = useState(submission?.feedback || "");
+
+  useEffect(() => {
+    setScore(String(submission?.score ?? ""));
+    setFeedback(submission?.feedback || "");
+  }, [submission?.id]);
+
+  return (
+    <section className="card dataCard formCard">
+      <h2>Submission review</h2>
+      <div className="reviewGrid">
+        <div>
+          <p><strong>Assignment:</strong> {formatValue(submission.assignment_id)}</p>
+          <p><strong>Student:</strong> {formatValue(submission.student_id)}</p>
+          <p><strong>Status:</strong> {formatValue(submission.state)}</p>
+          <p><strong>Submitted file:</strong> {submission.file_name || "No attachment"}</p>
+          <p><strong>Student note:</strong> {submission.feedback || "No note"}</p>
+          {submission.file_data ? <a className="ghostButton inlineActionButton" href={dataHrefFromBase64(submission.file_data)} download={submission.file_name || "submission"}>View attachment</a> : null}
+        </div>
+        <div className="inlineForm">
+          <label>
+            <span>Score</span>
+            <input type="number" value={score} onChange={(event) => setScore(event.target.value)} />
+          </label>
+          <label className="fullSpan">
+            <span>Faculty feedback</span>
+            <textarea value={feedback} onChange={(event) => setFeedback(event.target.value)} />
+          </label>
+          <div className="tableActions">
+            <button type="button" className="ghostButton tableButton" disabled={busy || !score} onClick={() => onGenerateFeedback(Number(score), feedback, setFeedback)}>
+              Generate feedback
+            </button>
+            <button type="button" className="primaryButton compactButton" disabled={busy || !score} onClick={() => onSave(Number(score), feedback)}>
+              {busy ? "Saving..." : "Save grade"}
+            </button>
+          </div>
+        </div>
+      </div>
+      {message ? <p className="muted actionMessage">{message}</p> : null}
+    </section>
+  );
+}
+
 function App() {
   const [state, setState] = useState({
     booting: true,
@@ -697,14 +825,16 @@ function Portal({ portalData, onLogout, onRefresh }) {
   const [selectedResultId, setSelectedResultId] = useState(null);
   const [activeCourseId, setActiveCourseId] = useState(null);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [studyAssistantResult, setStudyAssistantResult] = useState(null);
+  const [showAtRiskOnly, setShowAtRiskOnly] = useState(false);
 
   const pages = portalData.pages || {};
   const lookups = portalData.lookups || {};
   const context = portalData.context || {};
   const navItems = useMemo(() => {
     const allowedPages = rolePages[portalData.role] || rolePages.admin;
-    return pageMeta.filter((page) => allowedPages.includes(page.id));
-  }, [portalData.role]);
+    return pageMeta.filter((page) => allowedPages.includes(page.id) || (page.id === "library" && portalData.context?.is_librarian));
+  }, [portalData.role, portalData.context]);
   const safeActivePage = navItems.some((item) => item.id === activePage) ? activePage : "overview";
   const currentRecords = safeActivePage === "overview" ? [] : (pages[safeActivePage] || []);
   const currentLabel = pageMeta.find((page) => page.id === safeActivePage)?.label || "Overview";
@@ -721,6 +851,7 @@ function Portal({ portalData, onLogout, onRefresh }) {
   const courseOptions = buildOptions(pages.courses || [], ["code", "name"]);
   const facultyOptions = buildOptions(pages.faculty || [], ["display_name", "user_login"]);
   const studentOptions = buildOptions(pages.students || [], ["student_number", "name"]);
+  const canManageLibrary = isAdmin || Boolean(context.is_librarian);
 
   useEffect(() => {
     setMessage("");
@@ -728,6 +859,7 @@ function Portal({ portalData, onLogout, onRefresh }) {
     setSelectedSubmissionId(null);
     setSelectedExamId(null);
     setSelectedResultId(null);
+    if (safeActivePage !== "study_assistant") setStudyAssistantResult(null);
   }, [safeActivePage]);
 
   useEffect(() => {
@@ -812,7 +944,8 @@ function Portal({ portalData, onLogout, onRefresh }) {
 
   function renderStudentsPage() {
     if (isFaculty) {
-      const groupedRecords = currentRecords.reduce((accumulator, record) => {
+      const filteredRecords = showAtRiskOnly ? currentRecords.filter((record) => ["high", "critical"].includes(String(record.risk_level || "").toLowerCase())) : currentRecords;
+      const groupedRecords = filteredRecords.reduce((accumulator, record) => {
         const key = record.course || "Unassigned course";
         accumulator[key] = accumulator[key] || [];
         accumulator[key].push(record);
@@ -822,7 +955,15 @@ function Portal({ portalData, onLogout, onRefresh }) {
       return (
         <>
           <SectionHeader title="Students by course" />
-          <SectionMessage message={message} />
+          <section className="card dataCard">
+            <div className="tableActions">
+              <label className="choiceRow">
+                <input type="checkbox" checked={showAtRiskOnly} onChange={(event) => setShowAtRiskOnly(event.target.checked)} />
+                <span>Show only at-risk students</span>
+              </label>
+            </div>
+            {message ? <p className="muted actionMessage">{message}</p> : null}
+          </section>
           {courseNames.length ? courseNames.map((courseName) => (
             <DataTable
               key={courseName}
@@ -834,7 +975,23 @@ function Portal({ portalData, onLogout, onRefresh }) {
         </>
       );
     }
-    return (<><SectionHeader title={currentLabel} />{isAdmin ? <SimpleForm title="Add student" busy={busy} message={message} submitLabel="Create student" fields={[{ name: "name", label: "Full name", required: true }, { name: "login", label: "Username", required: true }, { name: "password", label: "Password", required: true, type: "password" }, { name: "email", label: "Email", type: "email" }, { name: "student_number", label: "Student number", required: true }, { name: "department_id", label: "Department", required: true, type: "select", options: departmentOptions }, { name: "advisor_id", label: "Advisor", type: "select", options: facultyOptions }, { name: "term_id", label: "Term", required: true, type: "select", options: termOptions }]} onSubmit={(form, reset) => runAction(async () => { await createStudent({ ...form, department_id: Number(form.department_id), advisor_id: form.advisor_id ? Number(form.advisor_id) : false, term_id: Number(form.term_id), state: "enrolled" }); reset(); })} /> : <SectionMessage message={message} />}<DataTable title={currentLabel} records={currentRecords} /></>);
+    return (
+      <>
+        <SectionHeader title={currentLabel} />
+        {isAdmin ? (
+          <>
+            <section className="card dataCard">
+              <div className="tableActions">
+                <button type="button" className="ghostButton tableButton" disabled={busy} onClick={() => runAction(() => triggerRiskScan())}>Run at-risk scan</button>
+              </div>
+              {message ? <p className="muted actionMessage">{message}</p> : null}
+            </section>
+            <SimpleForm title="Add student" busy={busy} message="" submitLabel="Create student" fields={[{ name: "name", label: "Full name", required: true }, { name: "login", label: "Username", required: true }, { name: "password", label: "Password", required: true, type: "password" }, { name: "email", label: "Email", type: "email" }, { name: "student_number", label: "Student number", required: true }, { name: "department_id", label: "Department", required: true, type: "select", options: departmentOptions }, { name: "advisor_id", label: "Advisor", type: "select", options: facultyOptions }, { name: "term_id", label: "Term", required: true, type: "select", options: termOptions }]} onSubmit={(form, reset) => runAction(async () => { await createStudent({ ...form, department_id: Number(form.department_id), advisor_id: form.advisor_id ? Number(form.advisor_id) : false, term_id: Number(form.term_id), state: "enrolled" }); reset(); })} />
+          </>
+        ) : <SectionMessage message={message} />}
+        <DataTable title={currentLabel} records={currentRecords} />
+      </>
+    );
   }
   function renderFacultyPage() { return (<><SectionHeader title={currentLabel} />{isAdmin ? <SimpleForm title="Add faculty member" busy={busy} message={message} submitLabel="Create faculty" fields={[{ name: "name", label: "Full name", required: true, defaultValue: "Amina Rahman" }, { name: "title", label: "Title", required: true, defaultValue: "Dr." }, { name: "login", label: "Username", required: true }, { name: "password", label: "Password", required: true, type: "password" }, { name: "email", label: "Email", type: "email" }, { name: "department_id", label: "Department", required: true, type: "select", options: departmentOptions }, { name: "max_load_hours", label: "Max load hours", required: true, type: "number", defaultValue: "12" }]} onSubmit={(form, reset) => runAction(async () => { await createFaculty({ ...form, department_id: Number(form.department_id), max_load_hours: Number(form.max_load_hours) }); reset(); })} /> : <SectionMessage message={message} />}<DataTable title={currentLabel} records={currentRecords} /></>); }
   function renderCoursesPage() {
@@ -926,10 +1083,44 @@ function Portal({ portalData, onLogout, onRefresh }) {
     return (
       <>
         <SectionHeader title={currentLabel} />
-        {selectedSubmission ? <section className="card dataCard formCard"><h2>Submission review</h2><div className="reviewGrid"><div><p><strong>Assignment:</strong> {formatValue(selectedSubmission.assignment_id)}</p><p><strong>Student:</strong> {formatValue(selectedSubmission.student_id)}</p><p><strong>Status:</strong> {formatValue(selectedSubmission.state)}</p><p><strong>Submitted file:</strong> {selectedSubmission.file_name || "No attachment"}</p><p><strong>Student note:</strong> {selectedSubmission.feedback || "No note"}</p>{selectedSubmission.file_data ? <a className="ghostButton inlineActionButton" href={dataHrefFromBase64(selectedSubmission.file_data)} download={selectedSubmission.file_name || "submission"}>View attachment</a> : null}</div><SimpleForm title="Grade submission" busy={busy} message={message} submitLabel="Save grade" fields={[{ name: "score", label: "Score", required: true, type: "number", defaultValue: selectedSubmission.score ?? "" }, { name: "feedback", label: "Faculty feedback", type: "textarea", defaultValue: selectedSubmission.feedback ?? "" }]} onSubmit={(form) => runAction(async () => { await gradeSubmission(selectedSubmission.id, Number(form.score), form.feedback); setSelectedSubmissionId(null); })} /></div></section> : <SectionMessage message={message} />}
+        {selectedSubmission ? <SubmissionReviewPanel submission={selectedSubmission} busy={busy} message={message} onGenerateFeedback={async (score, feedback, setFeedback) => {
+          setBusy(true);
+          setMessage("");
+          try {
+            const result = await requestFeedbackDraft(formatValue(selectedSubmission.assignment_id), formatValue(selectedSubmission.student_id), score, feedback);
+            setFeedback(result.feedback || "");
+          } catch (error) {
+            setMessage(error.message);
+          } finally {
+            setBusy(false);
+          }
+        }} onSave={(score, feedback) => runAction(async () => { await gradeSubmission(selectedSubmission.id, Number(score), feedback); setSelectedSubmissionId(null); })} /> : <SectionMessage message={message} />}
         {ungradedRecords.length ? <DataTable title="Ungraded submissions" records={ungradedRecords} actions={(record) => <button type="button" className="ghostButton tableButton" disabled={busy} onClick={() => setSelectedSubmissionId(record.id)}>Review and grade</button>} /> : null}
         {gradedRecords.length ? <DataTable title="Completed grading" records={gradedRecords} /> : null}
         {!ungradedRecords.length && !gradedRecords.length ? <section className="card dataCard"><p className="muted">No submissions available yet.</p></section> : null}
+      </>
+    );
+  }
+
+  function renderStudyAssistantPage() {
+    return (
+      <>
+        <SectionHeader title={currentLabel} />
+        <StudyAssistantPanel
+          courseOptions={courseOptions}
+          busy={busy}
+          message={message}
+          result={studyAssistantResult}
+          onAnalyze={(notes, courseId, file) => runAction(async () => {
+            const result = await requestStudyAssistant(
+              notes,
+              courseId || false,
+              file ? file.name : "",
+              file ? await fileToBase64(file) : false,
+            );
+            setStudyAssistantResult(result);
+          })}
+        />
       </>
     );
   }
@@ -987,7 +1178,28 @@ function Portal({ portalData, onLogout, onRefresh }) {
   }
 
   function renderLibraryPage() {
-    return (<><SectionHeader title={currentLabel} /><SectionMessage message={message} /><section className="contentGrid"><DataTable title="Available resources" records={pages.libraryItems || []} /><DataTable title="Borrowed and return status" records={pages.libraryLoans || []} /></section></>);
+    return (
+      <>
+        <SectionHeader title={currentLabel} />
+        <SectionMessage message={message} />
+        <section className="contentGrid">
+          <DataTable title="Available resources" records={pages.libraryItems || []} />
+          <DataTable
+            title="Borrowed and return status"
+            records={pages.libraryLoans || []}
+            actions={canManageLibrary ? (record) => (
+              <div className="tableActions">
+                {record.state !== "returned" ? <button type="button" className="ghostButton tableButton" disabled={busy} onClick={() => {
+                  const fineAmount = window.prompt("Fine amount for this return", String(record.fine_amount || 0));
+                  if (fineAmount === null) return;
+                  runAction(() => updateLibraryLoan(record.id, "returned", Number(fineAmount || 0)));
+                }}>Mark returned</button> : null}
+              </div>
+            ) : null}
+          />
+        </section>
+      </>
+    );
   }
 
   function renderPage() {
@@ -995,6 +1207,7 @@ function Portal({ portalData, onLogout, onRefresh }) {
     if (safeActivePage === "students") return renderStudentsPage();
     if (safeActivePage === "faculty") return renderFacultyPage();
     if (safeActivePage === "courses") return renderCoursesPage();
+    if (safeActivePage === "study_assistant") return renderStudyAssistantPage();
     if (safeActivePage === "assignments") return renderAssignmentsPage();
     if (safeActivePage === "submissions") return renderSubmissionsPage();
     if (safeActivePage === "exams") return renderExamsPage();

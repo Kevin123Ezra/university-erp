@@ -8,6 +8,7 @@
         "data/university_security.xml",
         "data/university_home_action.xml",
         "data/university_demo_users.xml",
+        "data/university_ai_cron.xml",
         "security/ir.model.access.csv",
         "views/res_company_views.xml",
         "views/university_core_views.xml",

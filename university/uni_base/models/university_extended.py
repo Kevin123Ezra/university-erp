@@ -137,6 +137,39 @@ class UniLibraryLoan(models.Model):
     )
     fine_amount = fields.Float(default=0.0)
 
+    def action_mark_returned(self, fine_amount=0.0):
+        fee_model = self.env["uni.fee.invoice"].sudo()
+        notification_model = self.env["uni.notification"].sudo()
+        for record in self:
+            record.write(
+                {
+                    "state": "returned",
+                    "return_date": fields.Date.context_today(self),
+                    "fine_amount": float(fine_amount or 0.0),
+                }
+            )
+            if record.fine_amount > 0:
+                fee_model.create(
+                    {
+                        "name": f"Library Fine - {record.item_id.title}",
+                        "student_id": record.student_id.id,
+                        "term_id": record.student_id.term_id.id,
+                        "amount_total": record.fine_amount,
+                        "amount_paid": 0.0,
+                        "due_date": fields.Date.context_today(self),
+                        "state": "posted",
+                    }
+                )
+                notification_model.create(
+                    {
+                        "name": f"Library fine issued for {record.item_id.title}",
+                        "notification_type": "fee_overdue",
+                        "audience": "student",
+                        "state": "queued",
+                        "message": f"A library fine of {record.fine_amount:.2f} has been added for {record.item_id.title}.",
+                    }
+                )
+
 
 class UniNotification(models.Model):
     _name = "uni.notification"

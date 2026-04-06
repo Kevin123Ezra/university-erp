@@ -17,6 +17,7 @@
                             <field name="university_primary_color"/>
                             <field name="university_secondary_color"/>
                             <field name="university_accent_color"/>
+                            <field name="gemini_api_key" password="True"/>
                         </group>
                     </group>
                 </page>

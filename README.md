@@ -109,6 +109,23 @@ db_password = openpgpwd
 http_port = 8069
 ```
 
+## AI Setup
+
+For Gemini-backed AI features, keep the key in a local `.env` file at the repo root.
+
+1. Copy `.env.example` to `.env`
+2. Set:
+
+```env
+UNI_GEMINI_API_KEY=your_real_key_here
+```
+
+Notes:
+
+- `.env` is already ignored by git
+- the Odoo backend reads `UNI_GEMINI_API_KEY` from the environment or from the repo-root `.env`
+- you can still use the company setting fallback, but `.env` is the safer local option
+
 ## Frontend Setup
 
 From `university_frontend`:
@@ -125,7 +142,15 @@ The VS Code tasks and debugger use:
 
 - `python.defaultInterpreterPath`
 
-So any developer can use this setup by selecting their own Python interpreter in VS Code.
+This workspace defaults to the bundled Odoo Python at:
+
+- `..\python\python.exe`
+
+If your Odoo Python lives somewhere else, update:
+
+- `.vscode/settings.json`
+
+Do not use the Windows Store `python.exe` for Odoo tasks unless it has the full Odoo dependency set installed.
 
 ## Start Development
 

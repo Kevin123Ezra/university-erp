@@ -35,6 +35,15 @@ class UniversityApiController(Controller):
             raise ValidationError("No faculty record is linked to this user.")
         return faculty
 
+    def _require_librarian_or_admin(self):
+        user = request.env.user
+        if user.has_group("uni_base.group_university_admin"):
+            return None
+        faculty = self._current_faculty()
+        if not faculty or not faculty.is_librarian:
+            raise AccessError("Only librarians or university admins can perform this action.")
+        return faculty
+
     def _create_assignment_questions(self, assignment, questions):
         question_model = request.env["uni.assignment.question"].sudo()
         assignment.question_ids.unlink()
@@ -79,6 +88,31 @@ class UniversityApiController(Controller):
     @route("/uni/api/portal_data", type="jsonrpc", auth="user", methods=["POST"], csrf=False)
     def university_portal_data(self):
         return request.env["res.users"].get_university_portal_data()
+
+    @route("/uni/api/ai/risk_scan", type="jsonrpc", auth="user", methods=["POST"], csrf=False)
+    def trigger_risk_scan(self):
+        self._require_admin()
+        request.env["uni.ai.service"].sudo().run_weekly_risk_scan()
+        return {"ok": True}
+
+    @route("/uni/api/ai/study_assistant", type="jsonrpc", auth="user", methods=["POST"], csrf=False)
+    def ai_study_assistant(self, notes=None, course_id=None, file_name=None, file_data=None):
+        student = self._require_student_or_admin()
+        course_name = ""
+        if course_id:
+            course = request.env["uni.course"].sudo().browse(course_id).exists()
+            course_name = course.name if course else ""
+        if student and not notes and not file_data:
+            raise ValidationError("Notes or a PDF file are required.")
+        return request.env["uni.ai.service"].sudo().build_study_assistant(notes or "", course_name, file_name or "", file_data or "")
+
+    @route("/uni/api/ai/feedback_draft", type="jsonrpc", auth="user", methods=["POST"], csrf=False)
+    def ai_feedback_draft(self, assignment_title, student_name, score, short_note=None):
+        self._require_faculty_or_admin()
+        feedback = request.env["uni.ai.service"].sudo().build_feedback_draft(
+            assignment_title, student_name, score, short_note or ""
+        )
+        return {"feedback": feedback}
 
     @route("/uni/api/admissions/create", type="jsonrpc", auth="user", methods=["POST"], csrf=False)
     def create_admission(self, values):
@@ -458,3 +492,15 @@ class UniversityApiController(Controller):
             raise AccessError("You can only publish results for your own exams.")
         exam.action_publish_results()
         return {"ok": True, "state": exam.result_state}
+
+    @route("/uni/api/library_loans/update", type="jsonrpc", auth="user", methods=["POST"], csrf=False)
+    def update_library_loan(self, loan_id, state, fine_amount=0.0):
+        self._require_librarian_or_admin()
+        loan = request.env["uni.library.loan"].sudo().browse(loan_id).exists()
+        if not loan:
+            raise ValidationError("Library loan not found.")
+        if state == "returned":
+            loan.action_mark_returned(fine_amount=fine_amount)
+        else:
+            loan.write({"state": state, "fine_amount": float(fine_amount or 0.0)})
+        return {"id": loan.id, "state": loan.state, "fine_amount": loan.fine_amount}

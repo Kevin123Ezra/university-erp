@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ir_cron_university_weekly_risk_scan" model="ir.cron">
+        <field name="name">University: Weekly At-Risk Scan</field>
+        <field name="model_id" ref="uni_base.model_uni_ai_service"/>
+        <field name="state">code</field>
+        <field name="code">env['uni.ai.service'].run_weekly_risk_scan()</field>
+        <field name="interval_number">7</field>
+        <field name="interval_type">days</field>
+        <field name="active">True</field>
+    </record>
+</odoo>

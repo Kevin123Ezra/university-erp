@@ -51,6 +51,7 @@ class UniFaculty(models.Model):
     department_id = fields.Many2one("uni.department")
     title = fields.Char()
     max_load_hours = fields.Float(default=12.0)
+    is_librarian = fields.Boolean(default=False)
     course_ids = fields.One2many("uni.course", "faculty_id")
     issue_ids = fields.One2many("uni.issue", "assignee_faculty_id")
 

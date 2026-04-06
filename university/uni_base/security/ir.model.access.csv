@@ -63,3 +63,6 @@ access_uni_assignment_question_faculty,uni.assignment.question faculty,model_uni
 access_uni_assignment_answer_admin,uni.assignment.answer admin,model_uni_assignment_answer,uni_base.group_university_admin,1,1,1,1
 access_uni_assignment_answer_faculty,uni.assignment.answer faculty,model_uni_assignment_answer,uni_base.group_university_faculty,1,1,1,0
 access_uni_assignment_answer_student,uni.assignment.answer student,model_uni_assignment_answer,uni_base.group_university_student,1,1,1,0
+access_uni_student_risk_snapshot_admin,uni.student.risk.snapshot admin,model_uni_student_risk_snapshot,uni_base.group_university_admin,1,1,1,1
+access_uni_student_risk_snapshot_faculty,uni.student.risk.snapshot faculty,model_uni_student_risk_snapshot,uni_base.group_university_faculty,1,0,0,0
+access_uni_ai_service_admin,uni.ai.service admin,model_uni_ai_service,uni_base.group_university_admin,1,0,0,0

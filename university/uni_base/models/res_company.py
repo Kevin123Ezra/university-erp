@@ -12,3 +12,4 @@ class ResCompany(models.Model):
     university_primary_color = fields.Char(default="#005f73")
     university_secondary_color = fields.Char(default="#ee9b00")
     university_accent_color = fields.Char(default="#94d2bd")
+    gemini_api_key = fields.Char(groups="base.group_system")
