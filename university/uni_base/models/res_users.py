@@ -330,34 +330,58 @@ class ResUsers(models.Model):
                 }
             )
 
-        if not assignment_model.search([("name", "=", "Microservices Design Brief"), ("course_id", "=", course.id)], limit=1):
-            assignment_model.create(
-                {
-                    "name": "Microservices Design Brief",
-                    "course_id": course.id,
-                    "faculty_id": faculty.id,
-                    "term_id": term.id,
-                    "due_date": "2026-04-10",
-                    "total_marks": 100.0,
-                    "state": "published",
-                    "instructions": "Submit a service decomposition and deployment plan.",
-                }
-            )
-        assignment = assignment_model.search([("name", "=", "Microservices Design Brief"), ("course_id", "=", course.id)], limit=1)
-        if not assignment_model.search([("name", "=", "Cloud Migration Case Study"), ("course_id", "=", course_two.id)], limit=1):
-            assignment_model.create(
-                {
-                    "name": "Cloud Migration Case Study",
-                    "course_id": course_two.id,
-                    "faculty_id": faculty_two.id,
-                    "term_id": term.id,
-                    "due_date": "2026-04-16",
-                    "total_marks": 100.0,
-                    "state": "published",
-                    "instructions": "Prepare a migration plan for a legacy university service.",
-                }
-            )
-        assignment_two = assignment_model.search([("name", "=", "Cloud Migration Case Study"), ("course_id", "=", course_two.id)], limit=1)
+        assignment_specs = [
+            (
+                course,
+                faculty,
+                "Distributed Systems Architecture Review",
+                "2026-04-10",
+                "Review a distributed campus platform and propose a resilient service architecture.",
+            ),
+            (
+                course_two,
+                faculty_two,
+                "Cloud Migration Strategy Portfolio",
+                "2026-04-16",
+                "Prepare a phased migration strategy for a university workload moving to the cloud.",
+            ),
+            (
+                course_three,
+                faculty,
+                "Machine Learning Model Evaluation Memo",
+                "2026-04-20",
+                "Compare two candidate models and justify the recommended production choice.",
+            ),
+            (
+                course_four,
+                faculty_two,
+                "Incident Response Playbook Draft",
+                "2026-04-30",
+                "Draft an incident response workflow for a campus-wide phishing outbreak.",
+            ),
+        ]
+        seeded_assignments = {}
+        for seeded_course, seeded_faculty, name, due_date, instructions in assignment_specs:
+            record = assignment_model.search([("course_id", "=", seeded_course.id), ("name", "=", name)], limit=1)
+            if not record:
+                record = assignment_model.search([("course_id", "=", seeded_course.id)], limit=1)
+            assignment_vals = {
+                "name": name,
+                "course_id": seeded_course.id,
+                "faculty_id": seeded_faculty.id,
+                "term_id": term.id,
+                "due_date": due_date,
+                "total_marks": 100.0,
+                "state": "published",
+                "instructions": instructions,
+            }
+            if record:
+                record.write(assignment_vals)
+            else:
+                record = assignment_model.create(assignment_vals)
+            seeded_assignments[seeded_course.code] = record
+        assignment = seeded_assignments.get(course.code)
+        assignment_two = seeded_assignments.get(course_two.code)
 
         if not grade_model.search([("student_id", "=", student.id), ("course_id", "=", course.id)], limit=1):
             grade_model.create(
@@ -440,38 +464,68 @@ class ResUsers(models.Model):
                     }
                 )
 
-        if not exam_model.search([("name", "=", "Distributed Systems Midterm"), ("course_id", "=", course.id)], limit=1):
-            exam_model.create(
-                {
-                    "name": "Distributed Systems Midterm",
-                    "course_id": course.id,
-                    "term_id": term.id,
-                    "exam_date": "2026-04-18",
-                    "start_hour": 10.0,
-                    "end_hour": 12.0,
-                    "room": "Main Hall 1",
-                    "capacity": 120,
-                    "invigilator_id": faculty.id,
-                    "state": "approved",
-                }
-            )
-        exam = exam_model.search([("name", "=", "Distributed Systems Midterm"), ("course_id", "=", course.id)], limit=1)
-        if not exam_model.search([("name", "=", "Cloud Computing Quiz 1"), ("course_id", "=", course_two.id)], limit=1):
-            exam_model.create(
-                {
-                    "name": "Cloud Computing Quiz 1",
-                    "course_id": course_two.id,
-                    "term_id": term.id,
-                    "exam_date": "2026-04-22",
-                    "start_hour": 13.0,
-                    "end_hour": 14.0,
-                    "room": "Online",
-                    "capacity": 200,
-                    "invigilator_id": faculty_two.id,
-                    "state": "approved",
-                }
-            )
-        exam_two = exam_model.search([("name", "=", "Cloud Computing Quiz 1"), ("course_id", "=", course_two.id)], limit=1)
+        exam_specs = [
+            (
+                course,
+                faculty,
+                "Distributed Systems Mid-Semester Assessment",
+                "2026-04-18",
+                10.0,
+                12.0,
+                "Online",
+            ),
+            (
+                course_two,
+                faculty_two,
+                "Cloud Computing Service Design Exam",
+                "2026-04-22",
+                13.0,
+                14.0,
+                "Online",
+            ),
+            (
+                course_three,
+                faculty,
+                "Applied Machine Learning Evaluation Test",
+                "2026-04-25",
+                14.0,
+                15.5,
+                "Online",
+            ),
+            (
+                course_four,
+                faculty_two,
+                "Cybersecurity Operations Incident Drill",
+                "2026-05-02",
+                12.0,
+                13.5,
+                "Online",
+            ),
+        ]
+        seeded_exams = {}
+        for seeded_course, invigilator, name, exam_date, start_hour, end_hour, room in exam_specs:
+            record = exam_model.search([("course_id", "=", seeded_course.id), ("name", "=", name)], limit=1)
+            if not record:
+                record = exam_model.search([("course_id", "=", seeded_course.id)], limit=1)
+            exam_vals = {
+                "name": name,
+                "course_id": seeded_course.id,
+                "term_id": term.id,
+                "exam_date": exam_date,
+                "start_hour": start_hour,
+                "end_hour": end_hour,
+                "room": room,
+                "capacity": 200,
+                "invigilator_id": invigilator.id,
+                "state": "visible",
+            }
+            if record:
+                record.write(exam_vals)
+            else:
+                record = exam_model.create(exam_vals)
+            seeded_exams[seeded_course.code] = record
+        exam = seeded_exams.get(course.code)
+        exam_two = seeded_exams.get(course_two.code)
 
         if not registration_model.search([("student_id", "=", student.id), ("course_id", "=", course.id), ("term_id", "=", term.id)], limit=1):
             registration_model.create(
@@ -596,9 +650,27 @@ class ResUsers(models.Model):
             )
 
         notification_specs = [
-            ("Assignment due in 24 hours", "assignment_due", "student", "queued", "Microservices Design Brief is due tomorrow."),
-            ("Exam timetable published", "result_published", "student", "draft", "Midterm examination schedule is now available."),
-            ("System incident under investigation", "system_issue", "all", "queued", "Assignment upload errors are under investigation."),
+            (
+                "Assignment due in 24 hours",
+                "assignment_due",
+                "student",
+                "queued",
+                "Distributed Systems Architecture Review is due tomorrow.",
+            ),
+            (
+                "Exam timetable published",
+                "result_published",
+                "student",
+                "draft",
+                "Your online mid-semester assessments are now visible in the exam area.",
+            ),
+            (
+                "System incident under investigation",
+                "system_issue",
+                "all",
+                "queued",
+                "Assignment upload delays are being monitored by the university operations team.",
+            ),
         ]
         for name, ntype, audience, state, message in notification_specs:
             if not notification_model.search([("name", "=", name)], limit=1):
@@ -620,7 +692,7 @@ class ResUsers(models.Model):
                     "student_id": student.id,
                     "submission_date": fields.Datetime.now(),
                     "state": "submitted",
-                    "file_name": "microservices-brief.pdf",
+                    "file_name": "distributed-systems-architecture-review.pdf",
                     "feedback": "Awaiting faculty grading.",
                 }
             )
@@ -631,7 +703,7 @@ class ResUsers(models.Model):
                     "student_id": student.id,
                     "submission_date": fields.Datetime.now(),
                     "state": "graded",
-                    "file_name": "cloud-migration-plan.pdf",
+                    "file_name": "cloud-migration-strategy-portfolio.pdf",
                     "feedback": "Good coverage of the migration stages.",
                     "score": 92.0,
                 }

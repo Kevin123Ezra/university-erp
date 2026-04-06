@@ -231,6 +231,9 @@ class UniversityApiController(Controller):
             raise ValidationError("Assignment not found.")
         if faculty and assignment.faculty_id != faculty:
             raise AccessError("You can only delete your own assignments.")
+        assignment.submission_ids.mapped("answer_ids").unlink()
+        assignment.submission_ids.unlink()
+        assignment.question_ids.unlink()
         assignment.unlink()
         return {"ok": True}
 
@@ -320,6 +323,11 @@ class UniversityApiController(Controller):
             raise ValidationError("Exam not found.")
         if faculty and exam.course_id.faculty_id != faculty:
             raise AccessError("You can only delete your own exams.")
+        result_ids = exam.result_ids
+        request.env["uni.resit.request"].sudo().search([("exam_result_id", "in", result_ids.ids)]).unlink()
+        result_ids.mapped("answer_ids").unlink()
+        result_ids.unlink()
+        exam.question_ids.unlink()
         exam.unlink()
         return {"ok": True}
 
