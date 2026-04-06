@@ -67,11 +67,11 @@ It is not a full Odoo source-code mirror. The React app depends on a running Odo
 
 Seed data currently creates these usernames:
 
-- `student`
-- `student2`
-- `faculty`
-- `faculty1`
-- `uniadmin`
+- `student` - Student
+- `student2` - At risk student
+- `faculty` - Teacher
+- `faculty1` - Librarian
+- `uniadmin` - Admin
 
 Passwords are seeded in the database, not documented in the frontend. Reset them from Odoo if needed.
 
