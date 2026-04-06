@@ -94,6 +94,28 @@ function renderCellValue(column, value) {
   return formatValue(value);
 }
 
+function normalizeStudySummary(summary) {
+  if (Array.isArray(summary)) return summary.filter(Boolean).map((item) => String(item));
+  if (typeof summary === "string" && summary.trim()) {
+    return summary
+      .split(/\n+|(?<=[.!?])\s+/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
+function normalizeStudyMcqs(mcqs) {
+  if (!Array.isArray(mcqs)) return [];
+  return mcqs
+    .filter((item) => item && typeof item === "object")
+    .map((item) => ({
+      question: String(item.question || "Practice question"),
+      options: Array.isArray(item.options) ? item.options.map((option) => String(option)) : [],
+      answer: String(item.answer || ""),
+    }));
+}
+
 function getAcronym(name) {
   return String(name || "")
     .split(/\s+/)
@@ -618,6 +640,11 @@ function StudyAssistantPanel({ courseOptions, busy, message, result, onAnalyze }
   const [notes, setNotes] = useState("");
   const [attachment, setAttachment] = useState(null);
   const [showAnswers, setShowAnswers] = useState(false);
+  const summaryItems = normalizeStudySummary(result?.summary);
+  const mcqItems = normalizeStudyMcqs(result?.mcqs);
+  const gapAnalysis = typeof result?.gap_analysis === "string" && result.gap_analysis.trim()
+    ? result.gap_analysis
+    : "No major study gaps identified.";
 
   useEffect(() => {
     if (!courseId && courseOptions[0]?.value) setCourseId(courseOptions[0].value);
@@ -655,37 +682,37 @@ function StudyAssistantPanel({ courseOptions, busy, message, result, onAnalyze }
         </div>
         {message ? <p className="muted actionMessage">{message}</p> : null}
       </section>
-      {result ? (
-        <section className="contentGrid">
-          <section className="card dataCard">
-            <h2>Summary</h2>
-            <div className="stackList">
-              {(result.summary || []).map((item, index) => <div key={`${item}-${index}`} className="listCard"><p>{item}</p></div>)}
-            </div>
+        {result ? (
+          <section className="contentGrid">
+            <section className="card dataCard">
+              <h2>Summary</h2>
+              <div className="stackList">
+                {summaryItems.length ? summaryItems.map((item, index) => <div key={`${item}-${index}`} className="listCard"><p>{item}</p></div>) : <div className="listCard"><p>No summary generated yet.</p></div>}
+              </div>
+            </section>
+            <section className="card dataCard">
+              <h2>Gap analysis</h2>
+              <p>{gapAnalysis}</p>
+            </section>
+            <section className="card dataCard fullWidthCard">
+              <h2>Practice MCQs</h2>
+              <div className="tableActions">
+                <button type="button" className="ghostButton tableButton" onClick={() => setShowAnswers((current) => !current)}>
+                  {showAnswers ? "Hide answers" : "Show answers"}
+                </button>
+              </div>
+              <div className="questionList">
+                {mcqItems.length ? mcqItems.map((mcq, index) => (
+                  <div key={`${mcq.question}-${index}`} className="listCard">
+                    <strong>{index + 1}. {mcq.question}</strong>
+                    <p>{(mcq.options || []).join(" / ")}</p>
+                    {showAnswers ? <p className="muted">Correct answer: {mcq.answer}</p> : null}
+                  </div>
+                )) : <div className="listCard"><p>No practice MCQs generated yet.</p></div>}
+              </div>
+            </section>
           </section>
-          <section className="card dataCard">
-            <h2>Gap analysis</h2>
-            <p>{result.gap_analysis || "No major study gaps identified."}</p>
-          </section>
-          <section className="card dataCard fullWidthCard">
-            <h2>Practice MCQs</h2>
-            <div className="tableActions">
-              <button type="button" className="ghostButton tableButton" onClick={() => setShowAnswers((current) => !current)}>
-                {showAnswers ? "Hide answers" : "Show answers"}
-              </button>
-            </div>
-            <div className="questionList">
-              {(result.mcqs || []).map((mcq, index) => (
-                <div key={`${mcq.question}-${index}`} className="listCard">
-                  <strong>{index + 1}. {mcq.question}</strong>
-                  <p>{(mcq.options || []).join(" / ")}</p>
-                  {showAnswers ? <p className="muted">Correct answer: {mcq.answer}</p> : null}
-                </div>
-              ))}
-            </div>
-          </section>
-        </section>
-      ) : null}
+        ) : null}
     </>
   );
 }
