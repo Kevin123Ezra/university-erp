@@ -17,8 +17,8 @@ It is not a full Odoo source-code mirror. The React app depends on a running Odo
   Workspace tasks and launch configuration
 - `odoo.conf.example`
   Example local Odoo config
-- `.env` and `.env.example`
-  Gemini API key placeholder files
+- `.env`
+  Gemini API key placeholder file
 
 ## Main features
 
